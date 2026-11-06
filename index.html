@@ -1,0 +1,1359 @@
+<title>Comisiones DERCO</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --ground:#FCFCFB; --surface:#FFFFFF; --surface-2:#F4F7F6; --line:#E1E8E6; --line-2:#CBD8D5;
+  --ink:#16292F; --ink-2:#4A6168; --ink-3:#7A9096;
+  --jt:#00998C; --jt-soft:#E0F2EF; --derco:#C8102E; --derco-soft:#FBE7EA;
+  --s1:#C8102E; --s2:#00998C; --s3:#5B4BC4; --s4:#B4740A;
+  --ok:#1E7A4B; --warn:#B4740A; --crit:#C8102E; --ok-soft:#E4F3EA;
+  --shadow:0 1px 2px rgba(22,41,47,.06), 0 8px 24px -12px rgba(22,41,47,.12);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#10191A; --surface:#172325; --surface-2:#1E2C2E; --line:#2A3B3D; --line-2:#3A4E51;
+  --ink:#E8F0EE; --ink-2:#A9BDBA; --ink-3:#7A9296;
+  --jt:#19B3A3; --jt-soft:#123330; --derco:#E84A5C; --derco-soft:#3A1A20;
+  --s1:#E84A5C; --s2:#0FA595; --s3:#8778E0; --s4:#B8862A;
+  --ok:#3EA96E; --warn:#C89A3A; --crit:#E84A5C; --ok-soft:#14301F;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+}}
+:root[data-theme="dark"]{
+  --ground:#10191A; --surface:#172325; --surface-2:#1E2C2E; --line:#2A3B3D; --line-2:#3A4E51;
+  --ink:#E8F0EE; --ink-2:#A9BDBA; --ink-3:#7A9296;
+  --jt:#19B3A3; --jt-soft:#123330; --derco:#E84A5C; --derco-soft:#3A1A20;
+  --s1:#E84A5C; --s2:#0FA595; --s3:#8778E0; --s4:#B8862A;
+  --ok:#3EA96E; --warn:#C89A3A; --crit:#E84A5C; --ok-soft:#14301F;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:1280px; margin:0 auto; padding-inline:20px; padding-block:0 56px;}
+h1,h2,h3{font-family:"Archivo", ui-sans-serif, system-ui, sans-serif; text-wrap:balance; margin:0;}
+.num{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+.eyebrow{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); font-weight:600;}
+
+/* ---------- cabecera ---------- */
+header.top{border-bottom:1px solid var(--line); background:var(--surface); position:sticky;
+  top:env(safe-area-inset-top,0px); z-index:30;}
+.topin{max-width:1280px; margin:0 auto; padding:14px 20px; display:flex; gap:20px;
+  align-items:center; flex-wrap:wrap;}
+.brand{display:flex; align-items:center; gap:12px;}
+.mark{font-family:"Archivo"; font-weight:700; font-size:15px; letter-spacing:-.01em; padding:5px 10px;
+  border-radius:4px; line-height:1.1;}
+.mark.d{background:var(--derco); color:#fff;}
+.mark.j{background:var(--jt); color:#fff;}
+.xsep{color:var(--ink-3); font-size:13px;}
+.htitle{font-size:16px; font-weight:600; letter-spacing:-.01em;}
+.hsub{font-size:12px; color:var(--ink-2);}
+.spacer{flex:1 1 auto;}
+button, .btn{font:inherit; cursor:pointer; border-radius:6px; border:1px solid var(--line-2);
+  background:var(--surface); color:var(--ink); padding:7px 13px;}
+button:hover{border-color:var(--jt);}
+button:focus-visible, input:focus-visible, select:focus-visible{outline:2px solid var(--jt); outline-offset:2px;}
+.btn-main{background:var(--jt); border-color:var(--jt); color:#fff; font-weight:600;}
+.btn-main:hover{filter:brightness(1.08);}
+
+/* ---------- cargue ---------- */
+.loader{background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+  padding:16px; margin-top:20px;}
+.loader-head{display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px;}
+.slots{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:10px;}
+.slot{border:1.5px dashed var(--line-2); border-radius:8px; padding:12px; background:var(--surface);
+  display:flex; flex-direction:column; gap:6px; min-height:92px;}
+.slot.ok{border-style:solid; border-color:var(--jt); background:var(--jt-soft);}
+.slot label{font-size:12px; font-weight:600; cursor:pointer; color:var(--ink);}
+.slot .hint{font-size:11px; color:var(--ink-3); line-height:1.35;}
+.slot .file{font-size:11px; color:var(--jt); font-weight:600; word-break:break-all;}
+.slot input[type=file]{font-size:11px; width:100%; color:var(--ink-2);}
+.loader-foot{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px;}
+.msg{font-size:12px; color:var(--ink-2);}
+.msg.err{color:var(--crit); font-weight:600;}
+
+/* ---------- KPI ---------- */
+.kpirow{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:22px;}
+.kpi{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--jt);
+  border-radius:8px; padding:14px 16px; box-shadow:var(--shadow);}
+.kpi:nth-child(2){border-left-color:var(--derco);}
+.kpi:nth-child(3){border-left-color:var(--s4);}
+.kpi:nth-child(4){border-left-color:var(--s3);}
+.kpi .k-lab{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); font-weight:600;}
+.kpi .k-val{font-family:"Archivo"; font-weight:700; font-size:27px; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums; margin-top:5px; line-height:1.1;}
+.kpi .k-sub{font-size:12px; color:var(--ink-2); margin-top:3px;}
+
+/* ---------- secciones ---------- */
+section{margin-top:40px;}
+.shead{display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; margin-bottom:6px;}
+.shead h2{font-size:19px; font-weight:600; letter-spacing:-.015em;}
+.sdesc{font-size:13px; color:var(--ink-2); max-width:70ch; margin-bottom:16px;}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);}
+.pad{padding:18px;}
+
+/* anillo + resumen */
+.hero{display:grid; grid-template-columns:minmax(230px,300px) 1fr; gap:22px; align-items:center;}
+@media (max-width:760px){ .hero{grid-template-columns:1fr;} }
+.ring-wrap{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.ring{width:190px; height:190px; max-width:100%;}
+.ring .track{fill:none; stroke:var(--surface-2); stroke-width:15;}
+.ring .arc{fill:none; stroke:url(#ringgrad); stroke-width:15; stroke-linecap:round;
+  transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1);}
+@media (prefers-reduced-motion:reduce){ .ring .arc{transition:none;} }
+.ring-cap{text-align:center; font-size:12px; color:var(--ink-2);}
+.legs{display:grid; gap:14px;}
+.leg{display:grid; grid-template-columns:118px 1fr auto; gap:12px; align-items:center;}
+.leg-n{font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px;}
+.dot{width:10px; height:10px; border-radius:2px; flex:none;}
+.bar-t{height:11px; background:var(--surface-2); border-radius:3px; position:relative; overflow:hidden;}
+.bar-f{height:100%; border-radius:0 3px 3px 0; transition:width .9s cubic-bezier(.22,1,.36,1);}
+.bar-goal{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--ink-3); opacity:.65;}
+.leg-v{font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; min-width:56px; text-align:right;}
+
+/* insights */
+.ins{display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:12px;}
+.ins .i{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 15px;}
+.ins .i .t{font-size:11px; letter-spacing:.07em; text-transform:uppercase; font-weight:600; color:var(--ink-3);}
+.ins .i .b{font-size:13px; margin-top:6px; line-height:1.45;}
+.ins .i b{font-weight:600;}
+.ins .i.acc{border-left:3px solid var(--jt);}
+.ins .i.warnb{border-left:3px solid var(--warn);}
+.ins .i.critb{border-left:3px solid var(--crit);}
+
+/* filtros */
+.filters{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+.filters input[type=search], .filters select{font:inherit; padding:7px 10px; border-radius:6px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink);}
+.chip{font-size:12px; padding:5px 11px; border-radius:99px; border:1px solid var(--line-2);
+  background:var(--surface); cursor:pointer; color:var(--ink-2);}
+.chip[aria-pressed="true"]{background:var(--jt); border-color:var(--jt); color:#fff; font-weight:600;}
+
+/* ranking de barras */
+.rank{display:grid; gap:3px;}
+.rrow{display:grid; grid-template-columns:minmax(120px,168px) 1fr 68px; gap:12px; align-items:center;
+  padding:5px 8px; border-radius:6px; position:relative;}
+.rrow:hover{background:var(--surface-2);}
+.rname{font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.rname .sm{color:var(--ink-3); font-size:11px;}
+.rtrack{height:15px; background:var(--surface-2); border-radius:3px; position:relative;}
+.rfill{height:100%; border-radius:0 3px 3px 0; min-width:2px;}
+.rval{font-size:12.5px; font-variant-numeric:tabular-nums; text-align:right; font-weight:600;}
+.vac .rname{color:var(--ink-3); font-style:italic;}
+
+/* tablas */
+.tw{overflow-x:auto; border-radius:8px; border:1px solid var(--line);}
+table{border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px;}
+th,td{padding:8px 11px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
+th{background:var(--surface-2); font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink-2); font-weight:600; position:sticky; top:0; cursor:pointer; user-select:none;}
+th.r,td.r{text-align:right; font-variant-numeric:tabular-nums;}
+tbody tr:hover{background:var(--surface-2);}
+tbody tr:last-child td{border-bottom:none;}
+tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(--line-2);}
+.pill{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px;
+  letter-spacing:.03em;}
+.p-ok{background:var(--ok-soft); color:var(--ok);}
+.p-no{background:var(--derco-soft); color:var(--derco);}
+.p-mid{background:color-mix(in srgb, var(--warn) 14%, transparent); color:var(--warn);}
+.stripe{display:inline-block; width:3px; height:13px; border-radius:2px; vertical-align:-2px; margin-right:7px;}
+.chk{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-2);
+  cursor:pointer; user-select:none;}
+.chk input{accent-color:var(--jt); width:14px; height:14px; cursor:pointer;}
+tr.grp th{background:var(--surface); border-bottom:none; text-align:center; font-size:10px;
+  letter-spacing:.06em; color:var(--ink-2); padding:6px 8px; cursor:default; position:static;}
+tr.grp th.g1{background:color-mix(in srgb, var(--s3) 13%, transparent); color:var(--s3);}
+tr.grp th.g2{background:color-mix(in srgb, var(--s2) 13%, transparent); color:var(--s2);}
+tr.grp th.g3{background:color-mix(in srgb, var(--s4) 15%, transparent); color:var(--s4);}
+#infT th{font-size:10px; line-height:1.25; white-space:normal; min-width:74px; vertical-align:bottom;}
+#infT td{font-size:11.5px;}
+#infT tr.sup td{background:color-mix(in srgb, var(--s3) 10%, transparent); font-weight:600;}
+#infT tr.nac td{font-weight:700; background:var(--surface-2); border-top:2px solid var(--line-2);}
+#mT td[contenteditable]{cursor:text; min-width:190px;}
+#mT td[contenteditable]:focus{outline:2px solid var(--jt); outline-offset:-2px; background:var(--jt-soft);}
+#mT tr.falta td{background:color-mix(in srgb, var(--warn) 11%, transparent);}
+#mT td.vacio{color:var(--crit); font-style:italic;}
+.alerta{border:1px solid var(--warn); border-left:3px solid var(--warn); border-radius:8px;
+  padding:12px 14px; margin-bottom:14px; font-size:13px;
+  background:color-mix(in srgb, var(--warn) 8%, transparent);}
+
+/* tooltip */
+#tip{position:fixed; z-index:80; pointer-events:none; background:var(--ink); color:var(--ground);
+  padding:8px 11px; border-radius:6px; font-size:12px; line-height:1.45; max-width:260px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25); opacity:0; transition:opacity .12s;}
+#tip.on{opacity:1;}
+#tip .tt{font-weight:700; margin-bottom:3px;}
+#tip .tr{display:flex; justify-content:space-between; gap:14px; font-variant-numeric:tabular-nums;}
+footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-3);}
+.hidden{display:none;}
+</style>
+
+<header class="top">
+  <div class="topin">
+    <div class="brand">
+      <span class="mark d">DERCO</span><span class="xsep">×</span><span class="mark j">job&amp;talent</span>
+    </div>
+    <div>
+      <div class="htitle">Liquidación de comisiones</div>
+      <div class="hsub" id="periodo">Octubre 2026 · 42 puntos de venta</div>
+    </div>
+    <div class="spacer"></div>
+    <button id="themeBtn" type="button" aria-label="Cambiar tema">Tema</button>
+    <button id="loadBtn" type="button" class="btn-main">Cargar otro mes</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="loader hidden" id="loader">
+    <div class="loader-head">
+      <div><span class="eyebrow">Cargue de insumos</span>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:4px">
+          Se procesan en tu navegador; nada se envía a ningún servidor. Los tres primeros son obligatorios; la maestra actualiza promotores, vacantes y la homologación de nombres.</div>
+      </div>
+    </div>
+    <div class="slots">
+      <div class="slot" id="s-bi">
+        <label for="f-bi">1 · Detalle ventas por PDV</label>
+        <div class="hint">Descargable del BI: cuotas y venta del mes por punto.</div>
+        <input type="file" id="f-bi" accept=".xlsx,.xls">
+        <div class="file" id="n-bi"></div>
+      </div>
+      <div class="slot" id="s-so">
+        <label for="f-so">2 · Ventas (sell out)</label>
+        <div class="hint">Venta diaria por tienda, con fecha y categoría.</div>
+        <input type="file" id="f-so" accept=".xlsx,.xls">
+        <div class="file" id="n-so"></div>
+      </div>
+      <div class="slot" id="s-in">
+        <label for="f-in">3 · Ingresos a punto de venta</label>
+        <div class="hint">Export <span class="num">ingr_pdva</span> de DayByDay.</div>
+        <input type="file" id="f-in" accept=".xlsx,.xls">
+        <div class="file" id="n-in"></div>
+      </div>
+      <div class="slot" id="s-li">
+        <label for="f-li">4 · Maestra de puntos de venta</label>
+        <div class="hint">Qué promotor tiene cada punto, cuáles están vacantes y cómo se llama
+          el punto en cada base. <b>Cárgala siempre:</b> sin ella se usa la del mes anterior.</div>
+        <input type="file" id="f-li" accept=".xlsx,.xls">
+        <div class="file" id="n-li"></div>
+      </div>
+    </div>
+    <div class="loader-foot">
+      <button id="calcBtn" type="button" class="btn-main">Calcular</button>
+      <button id="resetBtn" type="button">Volver a octubre</button>
+      <span class="msg" id="msg"></span>
+    </div>
+  </div>
+
+  <div class="kpirow" id="kpis"></div>
+
+  <section>
+    <div class="shead"><h2>Cumplimiento nacional</h2></div>
+    <p class="sdesc">El presupuesto es el componente que más pesa en el pago. Baterías y llantas
+      se miden aparte y cada uno activa su propio escalón.</p>
+    <div class="card pad hero">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 200 200" role="img" aria-labelledby="ringlab">
+          <title id="ringlab">Cumplimiento de presupuesto nacional</title>
+          <defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--jt)"/><stop offset="100%" stop-color="var(--s3)"/>
+          </linearGradient></defs>
+          <circle class="track" cx="100" cy="100" r="78"></circle>
+          <circle class="arc" id="ringArc" cx="100" cy="100" r="78"
+                  transform="rotate(-90 100 100)" stroke-dasharray="490" stroke-dashoffset="490"></circle>
+          <text id="ringTxt" x="100" y="94" text-anchor="middle" font-family="Archivo" font-weight="700"
+                font-size="38" fill="var(--ink)">0%</text>
+          <text x="100" y="118" text-anchor="middle" font-family="IBM Plex Sans" font-size="12"
+                fill="var(--ink-3)">presupuesto</text>
+        </svg>
+        <div class="ring-cap" id="ringCap"></div>
+      </div>
+      <div class="legs" id="legs"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Lo que muestra el mes</h2></div>
+    <div class="ins" id="insights"></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Cumplimiento por punto de venta</h2></div>
+    <p class="sdesc">Barra sobre el presupuesto del punto. La marca vertical es el 100 %, que es donde
+      empieza a pagarse la unidad adicional.</p>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Buscar punto o promotor…" style="min-width:210px">
+      <select id="regSel"><option value="">Todas las regionales</option></select>
+      <button class="chip" id="chipPay" type="button" aria-pressed="false">Solo los que cobran</button>
+      <button class="chip" id="chipVac" type="button" aria-pressed="false">Solo puntos vacantes</button>
+      <button id="clearF" type="button">Limpiar</button>
+    </div>
+    <div class="card pad"><div class="rank" id="rank"></div></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Qué falta para el siguiente escalón</h2></div>
+    <p class="sdesc">Solo los puntos que quedaron a menos del 12&nbsp;% de su próximo umbral, ordenados por cercanía.
+      Es lo que se puede mover con gestión en el mes en curso.</p>
+    <div class="tw"><table id="gapT">
+      <thead><tr><th>Punto</th><th>Promotor</th><th>Concepto</th><th class="r">Hoy</th>
+        <th class="r">Falta</th><th class="r">Se activa</th></tr></thead>
+      <tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Cubrimientos del mes</h2></div>
+    <p class="sdesc">Cada fila es un día en que un asesor con punto propio atendió un punto sin promotor.
+      La venta de ese día sale del punto vacante y entra al punto del asesor.</p>
+    <div class="tw"><table id="trT">
+      <thead><tr><th>Fecha</th><th>Punto sin promotor</th><th>Asesor</th><th>Va a su punto</th>
+        <th class="r">Venta</th><th class="r">Bat.</th><th class="r">Llantas</th></tr></thead>
+      <tbody></tbody><tfoot></tfoot></table></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Maestro de puntos</h2>
+      <button id="mDown" type="button">Descargar maestro</button>
+      <button id="mUp" type="button">Cargar maestro</button>
+      <button id="mReset" type="button">Restaurar</button>
+      <input type="file" id="f-maestro" accept=".json" class="hidden">
+      <span class="msg" id="mMsg"></span></div>
+    <p class="sdesc">Refleja la maestra de puntos de venta que se cargó. Lo que se edite aquí queda
+      guardado en este navegador y sirve para un arreglo rápido, pero la fuente de verdad es el
+      archivo: lo que se corrija acá conviene llevarlo también a la plantilla.</p>
+    <div id="mAlert"></div>
+    <div class="tw"><table id="mT">
+      <thead><tr><th>Punto (BI)</th><th>Nombre en ingresos a PDV</th><th>Nombre en sell out</th>
+        <th>Promotor asignado</th><th>Estado</th></tr></thead>
+      <tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Puntos sin promotor</h2></div>
+    <p class="sdesc">Causan comisión que se factura al cliente, pero no la recibe ningún promotor.
+      Queda mapeada punto por punto para poder sustentarla.</p>
+    <div class="tw"><table id="vacT">
+      <thead><tr><th>Punto</th><th>Regional</th><th class="r">Cuota</th><th class="r">Venta</th>
+        <th class="r">Cumpl.</th><th class="r">Comisión causada</th></tr></thead>
+      <tbody></tbody><tfoot></tfoot></table></div>
+  </section>
+
+  <section id="permSec">
+    <div class="shead"><h2>Permanencia mínima</h2>
+      <label class="chk"><input type="checkbox" id="redCk"> Comparar el cumplimiento con el % redondeado</label>
+    </div>
+    <p class="sdesc">Quien ingresó o se retiró dentro del mes tiene que haber estado vinculado al menos
+      <b>20 días</b> del mes para que se le pague. La comisión se sigue causando y se le factura al
+      cliente, pero no entra a nómina.</p>
+    <div class="tw"><table id="permT">
+      <thead><tr><th>Punto</th><th>Promotor</th><th class="num">Ingreso</th><th class="num">Salida</th>
+        <th class="r">Días en el mes</th><th class="r">Comisión causada</th><th>Resultado</th></tr></thead>
+      <tbody></tbody><tfoot></tfoot></table></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Informe de liquidación</h2>
+      <button id="xlsBtn" type="button" class="btn-main">Descargar Excel</button>
+      <button id="copyBtn" type="button">Copiar para Excel</button>
+      <span class="msg" id="copyMsg"></span></div>
+    <p class="sdesc">Los mismos campos y el mismo orden de la hoja
+      <span class="num">Liquidación promotores</span> que se entrega hoy. Respeta los filtros de arriba.</p>
+    <div class="tw"><table id="infT">
+      <thead>
+        <tr class="grp">
+          <th colspan="8"></th>
+          <th colspan="3" class="g1">OBJETIVOS <span id="gMes1"></span></th>
+          <th colspan="3" class="g2">VENTA <span id="gMes2"></span></th>
+          <th colspan="3" class="g3">CUMPLIMIENTO <span id="gMes3"></span></th>
+          <th colspan="9"></th>
+        </tr>
+        <tr>
+          <th data-k="con">NUMERO DE CONTRATO</th><th data-k="mi">NOMBRE DEL MI</th>
+          <th>Fecha De Ingreso</th><th>Fecha De Salida</th><th>Estado</th><th>MES</th>
+          <th data-k="zona">ZONA</th><th data-k="pdv">Nombre Punto de Venta</th>
+          <th data-k="cb" class="r">BATERIAS</th><th data-k="cl" class="r">LLANTAS</th>
+          <th data-k="cq" class="r">PPTO TOTAL</th>
+          <th data-k="fb" class="r">BATERIAS VENDIDAS DERCO</th>
+          <th data-k="fl" class="r">LLANTAS VENDIDAS DERCO</th>
+          <th data-k="fq" class="r">VENTA FINAL EN PESOS</th>
+          <th data-k="pb" class="r">CUMPLIMIENTO UNDS BATERIAS</th>
+          <th data-k="pl" class="r">CUMPLIMIENTO UNDS LLANTAS</th>
+          <th data-k="pp" class="r">CUMPLIMIENTO PPTO</th>
+          <th class="r">BATERIAS ADICIONALES</th><th class="r">LLANTAS ADICIONALES</th>
+          <th class="r">LLANTAS</th><th class="r">BATERIAS</th><th class="r">$ PPTO</th>
+          <th>OBSERVACION</th>
+          <th class="r">Comision Baterias Adc</th><th class="r">Comision Llantas Adc</th>
+          <th data-k="pago" class="r">PAGO TOTAL</th>
+        </tr>
+      </thead><tbody></tbody><tfoot></tfoot></table></div>
+  </section>
+
+  <footer>
+    Calculado sobre el detalle de ventas por PDV, el sell out diario y los ingresos a punto de venta.
+    Los puntos sin promotor causan comisión facturable pero no generan pago a nómina.
+    <span id="fnote"></span>
+  </footer>
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = {"mes": "OCTUBRE 2026", "mesLabel": "OCTUBRE", "mesNum": 10, "anio": 2026, "puntos": [{"pdv": "HC TULUA", "reg": "Valle", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15160114.0, "cb": 5.17, "cl": 31.75, "vq": 4473361, "vb": -1, "vl": 19, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 22900.0, "eb": 0.0, "el": 0.0, "fq": 4450461.0, "fb": -1.0, "fl": 19.0}, {"pdv": "HC MDE MOLINOS", "reg": "Medellin", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15160114.0, "cb": 8.73, "cl": 25.2, "vq": 5671140, "vb": 3, "vl": 18, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 191900.0, "eb": 0.0, "el": 0.0, "fq": 5479240.0, "fb": 3.0, "fl": 18.0}, {"pdv": "HC V/CENCIO", "reg": "Meta", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15487911.0, "cb": 9.7, "cl": 89.84, "vq": 14150029, "vb": 3, "vl": 40, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 14150029.0, "fb": 3.0, "fl": 40.0}, {"pdv": "HC CALI MALL", "reg": "Valle", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15160114.0, "cb": 5.94, "cl": 12.58, "vq": 1295811, "vb": 1, "vl": 2, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 9159.66, "eb": 0.0, "el": 0.0, "fq": 1286651.34, "fb": 1.0, "fl": 2.0}, {"pdv": "HC BQLLA CENTRO", "reg": "Costa", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15160114.0, "cb": 12.73, "cl": 36.35, "vq": 4948890, "vb": 5, "vl": 10, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 1097212.6099999999, "eb": 0.0, "el": 4.0, "fq": 3851677.39, "fb": 5.0, "fl": 6.0}, {"pdv": "HC SUBA", "reg": "Bogota", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15160114.0, "cb": 13.3, "cl": 52.42, "vq": 9258223, "vb": 3, "vl": 30, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 9258223.0, "fb": 3.0, "fl": 30.0}, {"pdv": "HC IBAGUE", "reg": "Centro", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 17913444.0, "cb": 12.37, "cl": 94.52, "vq": 16116214, "vb": 7, "vl": 41, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 16116214.0, "fb": 7.0, "fl": 41.0}, {"pdv": "HC ARMENIA", "reg": "Eje cafetero", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 19756390.0, "cb": 17.7, "cl": 54.7, "vq": 18513300, "vb": 8, "vl": 46, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 730776.47, "eb": 0.0, "el": 3.0, "fq": 17782523.53, "fb": 8.0, "fl": 43.0}, {"pdv": "HC TUNJA", "reg": "Centro", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 15160114.0, "cb": 13.95, "cl": 38.07, "vq": 6219443, "vb": 6, "vl": 17, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 6219443.0, "fb": 6.0, "fl": 17.0}, {"pdv": "VENTA DISTANCIA", "reg": "Venta Distancia Bogota", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 26220070.0, "cb": 16.89, "cl": 505.33, "vq": 17316457, "vb": 4, "vl": 50, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 17316457.0, "fb": 4.0, "fl": 50.0}, {"pdv": "HC RIONEGRO", "reg": "Medellin", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 20509423.0, "cb": 17.89, "cl": 85.2, "vq": 18113471, "vb": 3, "vl": 77, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 753530.25, "eb": 1.0, "el": 2.0, "fq": 17359940.75, "fb": 2.0, "fl": 75.0}, {"pdv": "HC TINTAL", "reg": "Bogota", "prom": "SIN PROMOTOR", "tp": "NO", "cq": 30528545.0, "cb": 30.15, "cl": 88.96, "vq": 17951681, "vb": 7, "vl": 30, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 17951681.0, "fb": 7.0, "fl": 30.0}, {"pdv": "HC GIRARDOT", "reg": "Centro", "prom": "RODRIGUEZ NIETO PAUL ANDREI", "tp": "SI", "cq": 55334627.0, "cb": 30.71, "cl": 130.76, "vq": 32695520, "vb": 22, "vl": 110, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 32695520.0, "fb": 22.0, "fl": 110.0}, {"pdv": "HC LA POPA", "reg": "Costa", "prom": "DANILO ANDRES RODRIGUEZ VALLEJO", "tp": "SI", "cq": 82974218.0, "cb": 42.75, "cl": 333.07, "vq": 54566290, "vb": 16, "vl": 200, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 54566290.0, "fb": 16.0, "fl": 200.0}, {"pdv": "HC BMANGA", "reg": "Santanderes", "prom": "Chinchilla Quintero Fabian Andres", "tp": "SI", "cq": 51838577.0, "cb": 28.49, "cl": 222.47, "vq": 53000686, "vb": 24, "vl": 195, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 53000686.0, "fb": 24.0, "fl": 195.0}, {"pdv": "HC SAN FERNANDO", "reg": "Costa", "prom": "Ornan David Torres Arevalo", "tp": "SI", "cq": 82718629.95, "cb": 29.73, "cl": 394.8, "vq": 88516628, "vb": 25, "vl": 406, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 88516628.0, "fb": 25.0, "fl": 406.0}, {"pdv": "HC MTR RECREO", "reg": "Costa", "prom": "Joseph Francisco Fassette Monterroza", "tp": "SI", "cq": 55375263.0, "cb": 50.6, "cl": 179.66, "vq": 60163869, "vb": 41, "vl": 185, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 60163869.0, "fb": 41.0, "fl": 185.0}, {"pdv": "HC BELLO", "reg": "Medellin", "prom": "Anderson José Contreras Pérez", "tp": "SI", "cq": 51767683.0, "cb": 31.55, "cl": 143.17, "vq": 31226264, "vb": 16, "vl": 108, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 31226264.0, "fb": 16.0, "fl": 108.0}, {"pdv": "HC CUCUTA", "reg": "Santanderes", "prom": "WILSON AGUDELO OVALLOS", "tp": "SI", "cq": 60583720.0, "cb": 38.87, "cl": 243.83, "vq": 51353096, "vb": 24, "vl": 164, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 51353096.0, "fb": 24.0, "fl": 164.0}, {"pdv": "HC CALI NORTE", "reg": "Valle", "prom": "Eduan Lara Moncayo", "tp": "SI", "cq": 56747263.0, "cb": 52.78, "cl": 159.83, "vq": 49845518, "vb": 45, "vl": 114, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 49845518.0, "fb": 45.0, "fl": 114.0}, {"pdv": "HC ENVIGADO", "reg": "Medellin", "prom": "John Alexander Duque Gonzalez", "tp": "SI", "cq": 84960379.0, "cb": 51.61, "cl": 182.93, "vq": 90549538, "vb": 68, "vl": 307, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 90549538.0, "fb": 68.0, "fl": 307.0}, {"pdv": "HC CALI SUR", "reg": "Valle", "prom": "JUAN PABLO GALARZA CIFUENTES", "tp": "SI", "cq": 50948258.0, "cb": 43.4, "cl": 146.75, "vq": 43522099, "vb": 44, "vl": 74, "rq": 9159.66, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 43531258.66, "fb": 44.0, "fl": 74.0}, {"pdv": "HC YOPAL", "reg": "Meta", "prom": "Wilderman Andrey Sanchez Lopez", "tp": "SI", "cq": 58787104.0, "cb": 38.18, "cl": 180.4, "vq": 45114920, "vb": 31, "vl": 139, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 45114920.0, "fb": 31.0, "fl": 139.0}, {"pdv": "HC PALMIRA", "reg": "Valle", "prom": "Bryan Alexis Salazar Mañozca", "tp": "SI", "cq": 68000000.0, "cb": 45.0, "cl": 208.55, "vq": 66172820, "vb": 57, "vl": 227, "rq": 22900.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 66195720.0, "fb": 57.0, "fl": 227.0}, {"pdv": "HC SOACHA", "reg": "Bogota", "prom": "Daniel Camilo Nemojon Cuervo", "tp": "SI", "cq": 84964986.0, "cb": 51.84, "cl": 288.52, "vq": 77096691, "vb": 58, "vl": 220, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 77096691.0, "fb": 58.0, "fl": 220.0}, {"pdv": "HC MDE INDUST", "reg": "Medellin", "prom": "Jorge Mario Alvarez Vargas", "tp": "SI", "cq": 47033476.41, "cb": 42.67, "cl": 138.83, "vq": 57893699, "vb": 56, "vl": 148, "rq": 753530.25, "rb": 1.0, "rl": 2.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 58647229.25, "fb": 57.0, "fl": 150.0}, {"pdv": "HC NQS MALL", "reg": "Bogota", "prom": "JOHAN MORALES PULIDO", "tp": "SI", "cq": 47660794.0, "cb": 46.2, "cl": 113.2, "vq": 31671996, "vb": 31, "vl": 45, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 31671996.0, "fb": 31.0, "fl": 45.0}, {"pdv": "HC BQLLA NORTE", "reg": "Costa", "prom": "Jaime Andres De La Roche Cespedes", "tp": "SI", "cq": 82775947.0, "cb": 78.87, "cl": 232.31, "vq": 84878328, "vb": 77, "vl": 187, "rq": 509145.38, "rb": 0.0, "rl": 2.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 85387473.38, "fb": 77.0, "fl": 189.0}, {"pdv": "HC CALLE 80", "reg": "Bogota", "prom": "Andres Felipe Silva Guiot", "tp": "SI", "cq": 69163800.0, "cb": 63.47, "cl": 175.56, "vq": 63078237, "vb": 55, "vl": 140, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 63078237.0, "fb": 55.0, "fl": 140.0}, {"pdv": "HC BQLLA 30", "reg": "Costa", "prom": "Omar Enrique Gutierrez Carrillo", "tp": "SI", "cq": 86377055.0, "cb": 62.78, "cl": 314.67, "vq": 86127092, "vb": 64, "vl": 319, "rq": 588067.23, "rb": 0.0, "rl": 2.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 86715159.23, "fb": 64.0, "fl": 321.0}, {"pdv": "HC NEIVA", "reg": "Centro", "prom": "Miguel Angel Perdomo Ramos", "tp": "SI", "cq": 60105675.0, "cb": 59.97, "cl": 253.3, "vq": 72023819, "vb": 49, "vl": 260, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 72023819.0, "fb": 49.0, "fl": 260.0}, {"pdv": "HC BUENAVISTA", "reg": "Costa", "prom": "Orlando José Barreto Roa", "tp": "SI", "cq": 89831248.0, "cb": 61.54, "cl": 242.9, "vq": 73785036, "vb": 64, "vl": 211, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 73785036.0, "fb": 64.0, "fl": 211.0}, {"pdv": "HC CEDRITOS", "reg": "Bogota", "prom": "Luis Eduardo Diaz Vasquez", "tp": "SI", "cq": 84649896.0, "cb": 118.25, "cl": 126.83, "vq": 72470406, "vb": 100, "vl": 113, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 72470406.0, "fb": 100.0, "fl": 113.0}, {"pdv": "HC MOSQUERA", "reg": "Bogota", "prom": "ESTIVEN BELTRAN SILVA", "tp": "SI", "cq": 81581884.0, "cb": 87.06, "cl": 173.1, "vq": 80906776, "vb": 111, "vl": 117, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 80906776.0, "fb": 111.0, "fl": 117.0}, {"pdv": "HC NORTE 170", "reg": "Bogota", "prom": "VICTOR JAVIER RUBIO MACIAS", "tp": "SI", "cq": 58858849.26, "cb": 60.17, "cl": 176.13, "vq": 63322038, "vb": 61, "vl": 153, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 63322038.0, "fb": 61.0, "fl": 153.0}, {"pdv": "HC PEREIRA", "reg": "Eje cafetero", "prom": "SEBASTIAN MEJÍA SALAZAR", "tp": "SI", "cq": 81520418.0, "cb": 65.37, "cl": 194.0, "vq": 60557200, "vb": 54, "vl": 139, "rq": 730776.47, "rb": 0.0, "rl": 3.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 61287976.47, "fb": 54.0, "fl": 142.0}, {"pdv": "HC DORADO", "reg": "Bogota", "prom": "CEIR MAURICIO CARDENAS MONTAÑEZ", "tp": "SI", "cq": 77926141.0, "cb": 77.55, "cl": 146.16, "vq": 74704631, "vb": 77, "vl": 126, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 74704631.0, "fb": 77.0, "fl": 126.0}, {"pdv": "HC AVDA 68", "reg": "Bogota", "prom": "Javier Enrique Mejía Rocha", "tp": "SI", "cq": 90394574.46, "cb": 98.97, "cl": 267.43, "vq": 48425322, "vb": 52, "vl": 122, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 48425322.0, "fb": 52.0, "fl": 122.0}, {"pdv": "HC MDE SAN JUAN", "reg": "Medellin", "prom": "Luis Fernando Rodriguez Jaramillo", "tp": "SI", "cq": 86666863.0, "cb": 78.79, "cl": 359.47, "vq": 86362755, "vb": 73, "vl": 227, "rq": 191900.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 86554655.0, "fb": 73.0, "fl": 227.0}, {"pdv": "HC MANIZALES", "reg": "Eje cafetero", "prom": "Luis David Montoya Benitez", "tp": "SI", "cq": 75225668.0, "cb": 52.1, "cl": 132.65, "vq": 41615054, "vb": 54, "vl": 67, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 41615054.0, "fb": 54.0, "fl": 67.0}, {"pdv": "HC CAJICA", "reg": "Bogota", "prom": "Andrey Sebastian Sanchez Bello", "tp": "SI", "cq": 120512821.0, "cb": 171.66, "cl": 260.83, "vq": 105378109, "vb": 118, "vl": 265, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 105378109.0, "fb": 118.0, "fl": 265.0}, {"pdv": "HC VALLEDUPAR", "reg": "Costa", "prom": "GONZALEZ CANTILLO FARID JOSE", "tp": "SI", "cq": 35528545.0, "cb": 27.0, "cl": 117.83, "vq": 24082717, "vb": 12, "vl": 93, "rq": 0.0, "rb": 0.0, "rl": 0.0, "eq": 0.0, "eb": 0.0, "el": 0.0, "fq": 24082717.0, "fb": 12.0, "fl": 93.0}], "traslados": [{"f": "2026-10-02", "org": "HC MDE MOLINOS", "ases": "Luis Fernando Rodriguez Jaramillo", "dest": "HC MDE SAN JUAN", "v": 0.0, "b": 0.0, "l": 0.0}, {"f": "2026-10-16", "org": "HC CALI MALL", "ases": "JUAN PABLO GALARZA CIFUENTES", "dest": "HC CALI SUR", "v": 0.0, "b": 0.0, "l": 0.0}, {"f": "2026-10-16", "org": "HC MDE MOLINOS", "ases": "Luis Fernando Rodriguez Jaramillo", "dest": "HC MDE SAN JUAN", "v": 191900.0, "b": 0.0, "l": 0.0}, {"f": "2026-10-16", "org": "HC TULUA", "ases": "Bryan Alexis Salazar Mañozca", "dest": "HC PALMIRA", "v": 22900.0, "b": 0.0, "l": 0.0}, {"f": "2026-10-21", "org": "HC BQLLA CENTRO", "ases": "Omar Enrique Gutierrez Carrillo", "dest": "HC BQLLA 30", "v": 588067.23, "b": 0.0, "l": 2.0}, {"f": "2026-10-22", "org": "HC RIONEGRO", "ases": "Jorge Mario Alvarez Vargas", "dest": "HC MDE INDUST", "v": 753530.25, "b": 1.0, "l": 2.0}, {"f": "2026-10-28", "org": "HC CALI MALL", "ases": "JUAN PABLO GALARZA CIFUENTES", "dest": "HC CALI SUR", "v": 9159.66, "b": 0.0, "l": 0.0}, {"f": "2026-10-29", "org": "HC ARMENIA", "ases": "SEBASTIAN MEJÍA SALAZAR", "dest": "HC PEREIRA", "v": 730776.47, "b": 0.0, "l": 3.0}, {"f": "2026-10-30", "org": "HC BQLLA CENTRO", "ases": "Jaime Andres De La Roche Cespedes", "dest": "HC BQLLA NORTE", "v": 509145.38, "b": 0.0, "l": 2.0}], "maestro": [{"pdv": "HC TULUA", "ali": "Homecenter Tulua", "so": "TULUA EL RETIRO", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 1, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Valle", "obs": "SIN PROMOTOR"}, {"pdv": "HC MDE MOLINOS", "ali": "Homecenter Molinos", "so": "Medellin Molinos", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 2, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Antioquia", "obs": "SIN PROMOTOR"}, {"pdv": "HC V/CENCIO", "ali": "Homecenter Villavicencio", "so": "Vcio Fundadores", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 3, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Oriente Llanos", "obs": "SIN PROMOTOR"}, {"pdv": "HC CALI MALL", "ali": "Home Center Mall Plaza Cali", "so": "CALI MALLPLAZA", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 4, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Valle", "obs": "SIN PROMOTOR"}, {"pdv": "HC BQLLA CENTRO", "ali": "Homecenter Barranquilla Centro", "so": "Barranquilla Centro", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 5, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "COSTA", "obs": "SIN PROMOTOR"}, {"pdv": "HC SUBA", "ali": "Homecenter Suba", "so": "Suba", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 6, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Bogota", "obs": "SIN PROMOTOR"}, {"pdv": "HC IBAGUE", "ali": "Homecenter Ibague", "so": "Ibague", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 7, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "CENTRO", "obs": "SIN PROMOTOR"}, {"pdv": "HC ARMENIA", "ali": "Homecenter Armenia", "so": "ARMENIA", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 8, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "EJE CAFETERO", "obs": "SIN PROMOTOR"}, {"pdv": "HC TUNJA", "ali": "Homecenter Tunja", "so": "TUNJA", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 9, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "CENTRO", "obs": "SIN PROMOTOR"}, {"pdv": "VENTA DISTANCIA", "ali": "", "so": "Venta Distancia Bogota", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 10, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Venta a distancia", "obs": "SIN PROMOTOR"}, {"pdv": "HC RIONEGRO", "ali": "Homecenter Rio Negro", "so": "Rionegro", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 11, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Antioquia", "obs": "SIN PROMOTOR"}, {"pdv": "HC TINTAL", "ali": "Homecenter Tintal", "so": "TINTAL", "prom": "SIN PROMOTOR", "tp": "NO", "ced": "", "ord": 13, "con": "Sin Promotor", "mi": "Sin Promotor", "fi": "", "fs": "", "est": "", "zona": "Bogota", "obs": "SIN PROMOTOR"}, {"pdv": "HC GIRARDOT", "ali": "Homecenter Girardot", "so": "Girardot", "prom": "RODRIGUEZ NIETO PAUL ANDREI", "tp": "SI", "ced": "", "ord": 14, "con": "1903206.0", "mi": "RODRIGUEZ NIETO PAUL ANDREI", "fi": "01/07/2025", "fs": "26/08/2026", "est": "V", "zona": "CENTRO", "obs": ""}, {"pdv": "HC LA POPA", "ali": "Homecenter La Popa", "so": "Cartagena La Popa", "prom": "DANILO ANDRES RODRIGUEZ VALLEJO", "tp": "SI", "ced": "1043635140", "ord": 15, "con": "1921875.0", "mi": "DANILO ANDRES RODRIGUEZ VALLEJO", "fi": "", "fs": "", "est": "N", "zona": "COSTA", "obs": ""}, {"pdv": "HC BMANGA", "ali": "Homecenter Bucaramanga", "so": "Bucaramanga La Rosita", "prom": "Chinchilla Quintero Fabian Andres", "tp": "SI", "ced": "1102716954", "ord": 16, "con": "1903007.0", "mi": "Chinchilla Quintero Fabian Andres", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "SANTANDER", "obs": ""}, {"pdv": "HC SAN FERNANDO", "ali": "Homecenter San Fernando", "so": "Cartagena San Fernando", "prom": "Ornan David Torres Arevalo", "tp": "SI", "ced": "1047500262", "ord": 17, "con": "1903160.0", "mi": "Ornan David Torres Arevalo", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "COSTA", "obs": ""}, {"pdv": "HC MTR RECREO", "ali": "Homecenter Monteria", "so": "Monteria El Recreo", "prom": "Joseph Francisco Fassette Monterroza", "tp": "SI", "ced": "1067881033", "ord": 18, "con": "1903125.0", "mi": "Joseph Francisco Fassette Monterroza", "fi": "01/07/2025", "fs": "", "est": "V", "zona": "COSTA", "obs": ""}, {"pdv": "HC BELLO", "ali": "Homecenter Bello", "so": "Bello", "prom": "Anderson José Contreras Pérez", "tp": "SI", "ced": "1235255618", "ord": 19, "con": "1903052.0", "mi": "Anderson José Contreras Pérez", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Antioquia", "obs": ""}, {"pdv": "HC CUCUTA", "ali": "Homecenter Cucuta", "so": "Cucuta", "prom": "WILSON AGUDELO OVALLOS", "tp": "SI", "ced": "1090436828", "ord": 20, "con": "1918563.0", "mi": "WILSON AGUDELO OVALLOS", "fi": "14/10/2025", "fs": "", "est": "N", "zona": "SANTANDER", "obs": ""}, {"pdv": "HC CALI NORTE", "ali": "Homecenter Cali Norte", "so": "Cali Norte", "prom": "Eduan Lara Moncayo", "tp": "SI", "ced": "94412336", "ord": 21, "con": "1957722.0", "mi": "Eduan Lara Moncayo", "fi": "03/09/2026", "fs": "", "est": "N", "zona": "Valle", "obs": ""}, {"pdv": "HC ENVIGADO", "ali": "Homecenter Envigado", "so": "Envigado", "prom": "John Alexander Duque Gonzalez", "tp": "SI", "ced": "71780913", "ord": 22, "con": "1903124.0", "mi": "John Alexander Duque Gonzalez", "fi": "01/07/2025", "fs": "", "est": "V", "zona": "Antioquia", "obs": ""}, {"pdv": "HC CALI SUR", "ali": "Homecenter Sur|Homecenter Cali Sur", "so": "Cali Sur", "prom": "JUAN PABLO GALARZA CIFUENTES", "tp": "SI", "ced": "1114813506", "ord": 23, "con": "1954457.0", "mi": "JUAN PABLO GALARZA CIFUENTES", "fi": "28/07/2026", "fs": "", "est": "N", "zona": "Valle", "obs": "SIN PROMOTOR"}, {"pdv": "HC YOPAL", "ali": "Homecenter Yopal", "so": "Yopal", "prom": "Wilderman Andrey Sanchez Lopez", "tp": "SI", "ced": "1073504751", "ord": 24, "con": "1903303.0", "mi": "Wilderman Andrey Sanchez Lopez", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Oriente Llanos", "obs": ""}, {"pdv": "HC PALMIRA", "ali": "Homecenter Palmira", "so": "Palmira Unicentro", "prom": "Bryan Alexis Salazar Mañozca", "tp": "SI", "ced": "1113649647", "ord": 25, "con": "1903181.0", "mi": "Bryan Alexis Salazar Mañozca", "fi": "01/07/2025", "fs": "", "est": "V", "zona": "Valle", "obs": ""}, {"pdv": "HC SOACHA", "ali": "Homecenter Soacha", "so": "Soacha", "prom": "Daniel Camilo Nemojon Cuervo", "tp": "SI", "ced": "1014305216", "ord": 26, "con": "1903201.0", "mi": "Daniel Camilo Nemojon Cuervo", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Bogota", "obs": ""}, {"pdv": "HC MDE INDUST", "ali": "Homecenter Industriales", "so": "Medellin Industriales", "prom": "Jorge Mario Alvarez Vargas", "tp": "SI", "ced": "98563544", "ord": 27, "con": "1903441.0", "mi": "Jorge Mario Alvarez Vargas", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Antioquia", "obs": ""}, {"pdv": "HC NQS MALL", "ali": "Homecenter Calima.", "so": "Homecenter Mallplaza NQS", "prom": "JOHAN MORALES PULIDO", "tp": "SI", "ced": "1028865500", "ord": 28, "con": "1954649.0", "mi": "JOHAN MORALES PULIDO", "fi": "30/07/2026", "fs": "", "est": "N", "zona": "Bogota", "obs": ""}, {"pdv": "HC BQLLA NORTE", "ali": "Homecenter Barranquilla Norte", "so": "Barranquilla Norte", "prom": "Jaime Andres De La Roche Cespedes", "tp": "SI", "ced": "72257237", "ord": 29, "con": "1903092.0", "mi": "Jaime Andres De La Roche Cespedes", "fi": "01/07/2025", "fs": "", "est": "V", "zona": "COSTA", "obs": ""}, {"pdv": "HC CALLE 80", "ali": "Homecenter Calle 80", "so": "Calle 80 Bogota", "prom": "Andres Felipe Silva Guiot", "tp": "SI", "ced": "1013638264", "ord": 30, "con": "1903269.0", "mi": "Andres Felipe Silva Guiot", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Bogota", "obs": ""}, {"pdv": "HC BQLLA 30", "ali": "Homecenter Barranquilla Calle 30", "so": "Barranquilla Calle 30", "prom": "Omar Enrique Gutierrez Carrillo", "tp": "SI", "ced": "72098375", "ord": 31, "con": "1903111.0", "mi": "Omar Enrique Gutierrez Carrillo", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "COSTA", "obs": ""}, {"pdv": "HC NEIVA", "ali": "Homecenter Neiva", "so": "Neiva San Pedro", "prom": "Miguel Angel Perdomo Ramos", "tp": "SI", "ced": "1075284723", "ord": 32, "con": "1903359.0", "mi": "Miguel Angel Perdomo Ramos", "fi": "01/07/2025", "fs": "", "est": "V", "zona": "CENTRO", "obs": "SIN PROMOTOR"}, {"pdv": "HC BUENAVISTA", "ali": "Homecenter|Homecenter Santamarta", "so": "Santa Marta Buenavista", "prom": "Orlando José Barreto Roa", "tp": "SI", "ced": "1110533250", "ord": 33, "con": "1903096.0", "mi": "Orlando José Barreto Roa", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "COSTA", "obs": ""}, {"pdv": "HC CEDRITOS", "ali": "Homecenter Cedritos", "so": "Cedritos Bogota", "prom": "Luis Eduardo Diaz Vasquez", "tp": "SI", "ced": "11225449", "ord": 34, "con": "1903339.0", "mi": "Luis Eduardo Diaz Vasquez", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Bogota", "obs": ""}, {"pdv": "HC MOSQUERA", "ali": "Homecenter Mosquera", "so": "Mosquera", "prom": "ESTIVEN BELTRAN SILVA", "tp": "SI", "ced": "1070464010", "ord": 35, "con": "1955286.0", "mi": "ESTIVEN BELTRAN SILVA", "fi": "05/08/2026", "fs": "", "est": "N", "zona": "Bogota", "obs": "SIN PROMOTOR"}, {"pdv": "HC NORTE 170", "ali": "Homecenter Norte", "so": "Norte Bogota", "prom": "VICTOR JAVIER RUBIO MACIAS", "tp": "SI", "ced": "1007627363", "ord": 36, "con": "1953043.0", "mi": "VICTOR JAVIER RUBIO MACIAS", "fi": "10/07/2026", "fs": "", "est": "N", "zona": "Bogota", "obs": "SIN PROMOTOR"}, {"pdv": "HC PEREIRA", "ali": "Homecenter Pereira", "so": "Pereira", "prom": "SEBASTIAN MEJÍA SALAZAR", "tp": "SI", "ced": "1088349837", "ord": 37, "con": "1916071.0", "mi": "SEBASTIAN MEJÍA SALAZAR", "fi": "01/10/2025", "fs": "", "est": "N", "zona": "EJE CAFETERO", "obs": "SIN PROMOTOR"}, {"pdv": "HC DORADO", "ali": "Homecenter Dorado", "so": "Dorado", "prom": "CEIR MAURICIO CARDENAS MONTAÑEZ", "tp": "SI", "ced": "80115103", "ord": 38, "con": "1942374.0", "mi": "CEIR MAURICIO CARDENAS MONTAÑEZ", "fi": "13/04/2026", "fs": "", "est": "N", "zona": "Bogota", "obs": "SIN PROMOTOR"}, {"pdv": "HC AVDA 68", "ali": "Homecenter Avenida 68 Sur", "so": "Avda. 68 Sur Bogota", "prom": "Javier Enrique Mejía Rocha", "tp": "SI", "ced": "1124036584", "ord": 39, "con": "1903268.0", "mi": "Javier Enrique Mejía Rocha", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Bogota", "obs": ""}, {"pdv": "HC MDE SAN JUAN", "ali": "Homecenter San Juan", "so": "Medellin San Juan", "prom": "Luis Fernando Rodriguez Jaramillo", "tp": "SI", "ced": "1035227940", "ord": 40, "con": "1903235.0", "mi": "Luis Fernando Rodriguez Jaramillo", "fi": "01/07/2025", "fs": "", "est": "V", "zona": "Antioquia", "obs": "SIN PROMOTOR"}, {"pdv": "HC MANIZALES", "ali": "Homecenter Manizales|Mzls San Rafael", "so": "Mzls San Rafael", "prom": "Luis David Montoya Benitez", "tp": "SI", "ced": "75093560", "ord": 41, "con": "0.0", "mi": "Luis David Montoya Benitez", "fi": "04/10/2026", "fs": "", "est": "N", "zona": "Eje Cafetero", "obs": "SIN PROMOTOR"}, {"pdv": "HC CAJICA", "ali": "Homecenter Cajica", "so": "Cajica", "prom": "Andrey Sebastian Sanchez Bello", "tp": "SI", "ced": "1075688960", "ord": 42, "con": "1903267.0", "mi": "Andrey Sebastian Sanchez Bello", "fi": "01/07/2025", "fs": "", "est": "N", "zona": "Bogota", "obs": ""}, {"pdv": "HC VALLEDUPAR", "ali": "Homecenter Valledupar", "so": "Valledupar Guatapuri", "prom": "GONZALEZ CANTILLO FARID JOSE", "tp": "SI", "ced": "1065590178", "ord": 43, "con": "1963139.0", "mi": "GONZALEZ CANTILLO FARID JOSE", "fi": "23/10/2026", "fs": "", "est": "N", "zona": "COSTA", "obs": ""}], "supervisor": {"nombre": "Jhon Sebastian Reyes Vela", "ced": "1099216880", "con": "1903270"}};
+
+/* ---------------- reglas de negocio ---------------- */
+const ESC = [ {u:1.20, l:213000, b:298200, p:340800},
+              {u:1.10, l:160000, b:250000, p:300000},
+              {u:1.00, l:140000, b:200000, p:260000},
+              {u:0.90, l:120000, b:166000, p:200000},
+              {u:0.80, l:80000,  b:105000, p:120000} ];
+const TAR_BAT = 1500, TAR_LLA = 3000;
+/* Permanencia mínima: quien ingresó o se retiró en el mes debe haber estado
+   vinculado al menos 20 días del mes para que la comisión se le pague.
+   La comisión se sigue causando (se le cobra al cliente), pero no entra a nómina. */
+const DIAS_MIN = 20;
+/* Si el cumplimiento se compara contra el escalón redondeado a dos decimales
+   (89,97 % -> 90 %) o exacto. El manual del analista compara exacto en todos
+   los casos menos uno, así que el default es exacto. */
+let REDONDEO = false;
+const cmpPct = x => REDONDEO ? Math.round(x*100)/100 : x;
+
+const MESES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO',
+               'SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+/* dd/mm/aaaa, aaaa-mm-dd, Date y el serial de Excel */
+function fechaCO(v){
+  if (v == null || v === '' || v === '0') return null;
+  if (v instanceof Date) return isNaN(v) ? null : new Date(v.getFullYear(), v.getMonth(), v.getDate());
+  const s = String(v).trim();
+  if (/^\d{4,5}(\.0+)?$/.test(s)){
+    const d = new Date(Date.UTC(1899,11,30) + 0); d.setUTCDate(d.getUTCDate() + Math.round(parseFloat(s)));
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  }
+  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+/* días del mes liquidado en que la persona estuvo vinculada */
+function diasEnMes(ing, sal, anio, mes){
+  if (!anio || !mes) return null;
+  const ini = new Date(anio, mes-1, 1), fin = new Date(anio, mes, 0);
+  const a = ing && ing > ini ? ing : ini;
+  const b = sal && sal < fin ? sal : fin;
+  const d = Math.round((b - a)/86400000) + 1;
+  return d > 0 ? d : 0;
+}
+/* El supervisor comisiona sobre el cumplimiento NACIONAL agregado, con su propia
+   tabla: arranca en 70 % y no tiene pago por unidad adicional. */
+const ESC_SUP = [ {u:1.20, l:390000, b:410000, p:600000},
+                  {u:1.10, l:340000, b:360000, p:550000},
+                  {u:1.00, l:290000, b:310000, p:500000},
+                  {u:0.90, l:252000, b:250000, p:470000},
+                  {u:0.80, l:200000, b:240000, p:450000},
+                  {u:0.70, l:170000, b:200000, p:370000} ];
+const esc = (pct, k, tabla) => ((tabla || ESC).find(e => pct >= e.u) || {})[k] || 0;
+
+function liquidarSupervisor(rows){
+  const S = rows.reduce((a,r)=>({cq:a.cq+r.cq, fq:a.fq+r.fq, cb:a.cb+r.cb, fb:a.fb+r.fb,
+    cl:a.cl+r.cl, fl:a.fl+r.fl}), {cq:0,fq:0,cb:0,fb:0,cl:0,fl:0});
+  const pb = S.cb ? S.fb/S.cb : 0, pl = S.cl ? S.fl/S.cl : 0, pp = S.cq ? S.fq/S.cq : 0;
+  const cLla = esc(pl,'l',ESC_SUP), cBat = esc(pb,'b',ESC_SUP), cPpto = esc(pp,'p',ESC_SUP);
+  const sup = (DATA.supervisor || {});
+  return {...S, pb, pl, pp, cLla, cBat, cPpto, pago: cLla+cBat+cPpto,
+          nombre: sup.nombre || '', ced: sup.ced || '', con: sup.con || ''};
+}
+
+function liquidar(p){
+  const pb = p.cb ? p.fb/p.cb : 0, pl = p.cl ? p.fl/p.cl : 0, pp = p.cq ? p.fq/p.cq : 0;
+  const cLla = esc(cmpPct(pl),'l'), cBat = esc(cmpPct(pb),'b'), cPpto = esc(cmpPct(pp),'p');
+  const aBat = p.fb > p.cb ? (p.fb-p.cb)*TAR_BAT : 0;
+  const aLla = p.fl > p.cl ? (p.fl-p.cl)*TAR_LLA : 0;
+  const causada = cLla+cBat+cPpto+aBat+aLla;
+  // permanencia mínima
+  const m = infoDe(p.pdv);
+  const fi = fechaCO(m.fi), fs = fechaCO(m.fs);
+  const dias = p.tp === 'SI' ? diasEnMes(fi, fs, ANIO, MESNUM) : 0;
+  const cumple = p.tp === 'SI' && (dias === null || dias >= DIAS_MIN);
+  const motivo = cumple ? ''
+    : p.tp !== 'SI' ? 'SIN PROMOTOR'
+    : 'No paga: ' + dias + ' de ' + DIAS_MIN + ' días mínimos en el mes';
+  const pago = cumple ? causada : 0;
+  return {...p, pb, pl, pp, cLla, cBat, cPpto, aBat, aLla, causada, pago,
+          noPag: causada-pago, fi: m.fi || '', fs: m.fs || '', dias, cumple, motivo};
+}
+/* distancia al siguiente escalón */
+function brechas(r){
+  const out = [];
+  if (r.tp === 'NO') return out;
+  const defs = [
+    {n:'Presupuesto', pct:r.pp, cuota:r.cq, hoy:r.fq, k:'p', money:true},
+    {n:'Baterías',    pct:r.pb, cuota:r.cb, hoy:r.fb, k:'b', money:false},
+    {n:'Llantas',     pct:r.pl, cuota:r.cl, hoy:r.fl, k:'l', money:false}];
+  for (const d of defs){
+    const sig = [...ESC].reverse().find(e => d.pct < e.u);
+    if (!sig || !d.cuota) continue;
+    const falta = d.cuota*sig.u - d.hoy;
+    const gana  = sig[d.k] - esc(d.pct, d.k);
+    if (falta > 0 && gana > 0) out.push({pdv:r.pdv, prom:r.prom, con:d.n, hoy:d.hoy, pct:d.pct,
+                                         falta, gana, money:d.money, meta:sig.u, cuotaRef:d.cuota});
+  }
+  return out;
+}
+
+/* ---------------- formato ---------------- */
+const fmt$ = n => '$' + Math.round(n).toLocaleString('es-CO');
+const fmtN = (n,d=0) => Number(n).toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtP = n => (n*100).toFixed(1).replace('.',',') + '%';
+const esc_ = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cap = s => String(s||'').replace(/\b\w/g, c => c.toUpperCase());
+
+/* ---------------- guardar archivos ----------------
+   En el visor de claude.ai las descargas pasan por la capacidad 'downloads'
+   (el visor pide confirmación). En el HTML descargado a disco no existe esa
+   capa y se usa el enlace normal del navegador. */
+const DLP = (window.claude && typeof claude.use === 'function')
+  ? Promise.resolve(claude.use('downloads')).catch(()=>null) : Promise.resolve(null);
+async function guardar(filename, data, mime){
+  const dl = await DLP;
+  if (dl){ await dl.save({filename, data}); return; }
+  const blob = data instanceof Blob ? data : new Blob([data], {type: mime || 'application/octet-stream'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+const errDescarga = e => e && e.code === 'declined' ? 'Descarga cancelada.'
+  : e && e.code === 'rate_limited' ? 'Esperá un momento y volvé a intentar.'
+  : 'No se pudo descargar el archivo.';
+
+/* ---------------- estado ---------------- */
+let ROWS = [], TR = [], MES = '', SUP = null, ANIO = null, MESNUM = null;
+let F = {q:'', reg:'', pay:false, vac:false};
+let sortK = 'ord', sortD = 1;
+
+function recalcular(){
+  // periodo liquidado: de "OCTUBRE 2026" salen el mes y el año que usa la regla de días
+  const et = String(DATA.mes || DATA.mesLabel || '').toUpperCase();
+  const im = MESES.findIndex(x => et.includes(x));
+  MESNUM = DATA.mesNum || (im >= 0 ? im+1 : null);
+  ANIO = DATA.anio || (et.match(/(20\d{2})/) ? +et.match(/(20\d{2})/)[1] : null);
+  ROWS = DATA.puntos.map(liquidar);
+  SUP = liquidarSupervisor(ROWS);
+  TR = DATA.traslados || [];
+  MES = DATA.mes || '';
+  pintarTodo();
+}
+
+/* ---------------- KPIs ---------------- */
+function pintarKPIs(){
+  const causada = ROWS.reduce((a,r)=>a+r.causada,0);
+  const pago    = ROWS.reduce((a,r)=>a+r.pago,0);
+  const noPag   = causada - pago;
+  const conPago = ROWS.filter(r=>r.tp==='SI' && r.pago>0).length;
+  const conProm = ROWS.filter(r=>r.tp==='SI').length;
+  const sp = SUP ? SUP.pago : 0;
+  const k = [
+    ['Comisión causada', fmt$(causada + sp), 'Incluye la del supervisor'],
+    ['Pago total', fmt$(pago + sp), fmt$(pago) + ' promotores + ' + fmt$(sp) + ' supervisor'],
+    ['Causado sin pagar', fmt$(noPag),
+      ROWS.filter(r=>r.tp==='NO'&&r.causada>0).length + ' puntos vacantes'
+      + (ROWS.filter(r=>r.tp==='SI'&&!r.cumple&&r.causada>0).length
+         ? ' + ' + ROWS.filter(r=>r.tp==='SI'&&!r.cumple&&r.causada>0).length + ' sin los ' + DIAS_MIN + ' días' : '')],
+    ['Trasladado por cubrimiento', fmt$(TR.reduce((a,t)=>a+t.v,0)), TR.length + ' días cubiertos']];
+  document.getElementById('kpis').innerHTML = k.map(([l,v,s]) =>
+    `<div class="kpi"><div class="k-lab">${l}</div><div class="k-val num">${v}</div>
+     <div class="k-sub">${esc_(s)}</div></div>`).join('');
+}
+
+/* ---------------- anillo + componentes ---------------- */
+function pintarHero(){
+  const S = ROWS.reduce((a,r)=>({cq:a.cq+r.cq, fq:a.fq+r.fq, cb:a.cb+r.cb, fb:a.fb+r.fb,
+    cl:a.cl+r.cl, fl:a.fl+r.fl}), {cq:0,fq:0,cb:0,fb:0,cl:0,fl:0});
+  const pp = S.fq/S.cq, pb = S.fb/S.cb, pl = S.fl/S.cl;
+  const C = 2*Math.PI*78;
+  const arc = document.getElementById('ringArc');
+  arc.setAttribute('stroke-dasharray', C);
+  arc.setAttribute('stroke-dashoffset', C);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    arc.setAttribute('stroke-dashoffset', C*(1-Math.min(pp,1)));
+  }));
+  document.getElementById('ringTxt').textContent = Math.round(pp*100)+'%';
+  document.getElementById('ringCap').innerHTML =
+    `<span class="num">${fmt$(S.fq)}</span> vendidos sobre <span class="num">${fmt$(S.cq)}</span> de cuota`;
+
+  const legs = [
+    ['Presupuesto', pp, 'var(--s3)', fmt$(S.fq)+' / '+fmt$(S.cq)],
+    ['Baterías', pb, 'var(--s1)', fmtN(S.fb)+' / '+fmtN(S.cb,0)+' und'],
+    ['Llantas', pl, 'var(--s2)', fmtN(S.fl)+' / '+fmtN(S.cl,0)+' und']];
+  document.getElementById('legs').innerHTML = legs.map(([n,v,c,sub])=>`
+    <div class="leg">
+      <div class="leg-n"><span class="dot" style="background:${c}"></span>${n}</div>
+      <div><div class="bar-t"><div class="bar-f" style="width:${Math.min(v/1.2,1)*100}%;background:${c}"></div>
+        <span class="bar-goal" style="left:${(1/1.2)*100}%"></span></div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:4px" class="num">${sub}</div></div>
+      <div class="leg-v">${fmtP(v)}</div>
+    </div>`).join('');
+}
+
+/* ---------------- insights ---------------- */
+function pintarInsights(){
+  const conProm = ROWS.filter(r=>r.tp==='SI');
+  const vac = ROWS.filter(r=>r.tp==='NO');
+  const sinCobrar = conProm.filter(r=>r.pago===0);
+  const comp = {Llantas:0, Baterías:0, Presupuesto:0, Adicionales:0};
+  conProm.forEach(r=>{ comp.Llantas+=r.cLla; comp['Baterías']+=r.cBat;
+                       comp.Presupuesto+=r.cPpto; comp.Adicionales+=r.aBat+r.aLla; });
+  const totPago = conProm.reduce((a,r)=>a+r.pago,0);
+  const top = [...conProm].sort((a,b)=>b.pago-a.pago).slice(0,5);
+  const topSum = top.reduce((a,r)=>a+r.pago,0);
+  const gaps = conProm.flatMap(brechas).sort((a,b)=>b.gana-a.gana);
+  const gapCerca = gaps.filter(g=>g.pct>=0.95 && g.con==='Presupuesto');
+  const cien = conProm.filter(r=>r.pp>=1).length;
+  const ben = TR.reduce((m,t)=>{ m[t.dest]=(m[t.dest]||0)+t.v; return m; },{});
+  const topBen = Object.entries(ben).sort((a,b)=>b[1]-a[1])[0];
+  const ventaVac = vac.reduce((a,r)=>a+r.fq,0);
+  const cuotaVac = vac.reduce((a,r)=>a+r.cq,0);
+  const S = ROWS.reduce((a,r)=>({cb:a.cb+r.cb, fb:a.fb+r.fb, cl:a.cl+r.cl, fl:a.fl+r.fl}),
+                        {cb:0,fb:0,cl:0,fl:0});
+  const pb = S.fb/S.cb, pl = S.fl/S.cl;
+  const flojo = pb < pl ? ['Baterías', pb, 'Llantas', pl] : ['Llantas', pl, 'Baterías', pb];
+
+  const I = [];
+  I.push(['acc','Dónde se va la plata',
+    `El <b>${Math.round(comp.Presupuesto/totPago*100)} %</b> del pago sale del componente de
+     presupuesto (${fmt$(comp.Presupuesto)}). Llantas aporta ${fmt$(comp.Llantas)} y baterías
+     ${fmt$(comp['Baterías'])}. Las unidades adicionales suman ${fmt$(comp.Adicionales)}.`]);
+  I.push([sinCobrar.length > conProm.length/2 ? 'warnb':'acc','Cuántos quedan en cero',
+    `<b>${sinCobrar.length} de ${conProm.length}</b> promotores no alcanzaron ningún escalón:
+     ningún componente llegó al 80 %. Los otros ${conProm.length-sinCobrar.length} sí cobran.`]);
+  I.push(['acc','El componente flojo',
+    `<b>${flojo[0]}</b> cierra en ${fmtP(flojo[1])} nacional, por debajo de ${flojo[2].toLowerCase()}
+     (${fmtP(flojo[3])}). Ahí está el margen de mejora más grande del esquema.`]);
+  if (gapCerca.length){
+    const cerca = [...gapCerca].sort((a,b)=>a.falta-b.falta)[0];
+    I.push(['warnb','A un paso del escalón',
+    `<b>${gapCerca.length} punto${gapCerca.length>1?'s cerraron':' cerró'}</b> entre 95 % y 100 % de
+     presupuesto. El más cerca es <b>${esc_(cerca.pdv)}</b>: le faltaron
+     <b>${fmt$(cerca.falta)}</b> para activar ${fmt$(cerca.gana)} más.`]); }
+  I.push(['acc','Concentración del pago',
+    `Los 5 puntos de mayor comisión se llevan <b>${Math.round(topSum/totPago*100)} %</b> del total.
+     Encabeza ${esc_(top[0].pdv)} con ${fmt$(top[0].pago)}.`]);
+  I.push(['acc','Quiénes pasaron del 100 %',
+    `<b>${cien}</b> punto${cien===1?'':'s'} superó el presupuesto y entró al tramo donde se paga
+     cada unidad adicional: ${fmt$(TAR_BAT)} por batería y ${fmt$(TAR_LLA)} por llanta.`]);
+  if (topBen) I.push(['acc','El cubrimiento que más movió',
+    `<b>${esc_(topBen[0])}</b> recibió ${fmt$(topBen[1])} de puntos sin promotor que su asesor
+     atendió. En total se movieron ${fmt$(TR.reduce((a,t)=>a+t.v,0))} entre ${new Set(TR.map(t=>t.dest)).size} puntos.`]);
+  I.push(['critb','Lo que dejan los puntos vacantes',
+    `<b>${vac.length} puntos</b> estuvieron sin promotor. Vendieron ${fmt$(ventaVac)} contra una cuota
+     de ${fmt$(cuotaVac)} (${fmtP(ventaVac/cuotaVac)}) y causaron
+     ${fmt$(vac.reduce((a,r)=>a+r.causada,0))} que nadie cobra.`]);
+
+  document.getElementById('insights').innerHTML = I.map(([c,t,b]) =>
+    `<div class="i ${c}"><div class="t">${t}</div><div class="b">${b}</div></div>`).join('');
+}
+
+/* ---------------- ranking ---------------- */
+function filtrar(){
+  return ROWS.filter(r=>{
+    if (F.reg && r.reg !== F.reg) return false;
+    if (F.pay && r.pago <= 0) return false;
+    if (F.vac && r.tp !== 'NO') return false;
+    if (F.q){ const q = F.q.toLowerCase();
+      if (!(r.pdv.toLowerCase().includes(q) || (r.prom||'').toLowerCase().includes(q))) return false; }
+    return true;
+  });
+}
+function pintarRank(){
+  const rs = filtrar().slice().sort((a,b)=>b.pp-a.pp);
+  const max = Math.max(1.2, ...rs.map(r=>r.pp));
+  const el = document.getElementById('rank');
+  if (!rs.length){ el.innerHTML = '<div style="color:var(--ink-3);padding:14px">Ningún punto coincide con el filtro.</div>'; return; }
+  el.innerHTML = rs.map(r=>{
+    const col = r.tp==='NO' ? 'var(--ink-3)' : (r.pp>=1 ? 'var(--s2)' : r.pp>=0.8 ? 'var(--s3)' : 'var(--s1)');
+    return `<div class="rrow ${r.tp==='NO'?'vac':''}" data-pdv="${esc_(r.pdv)}">
+      <div class="rname">${esc_(r.pdv)}<br><span class="sm">${esc_(r.tp==='NO'?'sin promotor':r.prom)}</span></div>
+      <div class="rtrack"><div class="rfill" style="width:${Math.min(r.pp/max,1)*100}%;background:${col}"></div>
+        <span class="bar-goal" style="left:${(1/max)*100}%"></span></div>
+      <div class="rval">${fmtP(r.pp)}</div></div>`;
+  }).join('');
+}
+
+/* ---------------- tablas ---------------- */
+function pintarGaps(){
+  // se prioriza por cercanía real al umbral, no por el monto: un escalón a 13 millones
+  // de distancia no es accionable aunque pague lo mismo que uno a 200 mil.
+  const g = ROWS.flatMap(brechas)
+    .map(x => ({...x, rel: x.falta / (x.cuotaRef || 1)}))
+    .filter(x => x.rel <= 0.12)
+    .sort((a,b) => a.rel - b.rel).slice(0,14);
+  document.querySelector('#gapT tbody').innerHTML = g.map(x=>`
+    <tr><td>${esc_(x.pdv)}</td><td>${esc_(x.prom)}</td>
+      <td><span class="stripe" style="background:${x.con==='Presupuesto'?'var(--s3)':x.con==='Baterías'?'var(--s1)':'var(--s2)'}"></span>${x.con}</td>
+      <td class="r">${fmtP(x.pct)}</td>
+      <td class="r">${x.money ? fmt$(x.falta) : fmtN(Math.ceil(x.falta)) + ' und'}
+        <span style="color:var(--ink-3)">(${(x.rel*100).toFixed(1).replace('.',',')} %)</span></td>
+      <td class="r"><b>${fmt$(x.gana)}</b></td></tr>`).join('')
+    || '<tr><td colspan="6" style="color:var(--ink-3)">Ningún punto quedó a menos del 12 % de su próximo escalón.</td></tr>';
+}
+function pintarTr(){
+  document.querySelector('#trT tbody').innerHTML = TR.slice()
+    .sort((a,b)=> a.org.localeCompare(b.org) || a.f.localeCompare(b.f)).map(t=>`
+    <tr><td class="num">${t.f.split('-').reverse().join('/')}</td><td>${esc_(t.org)}</td>
+      <td>${esc_(t.ases)}</td><td><b>${esc_(t.dest)}</b></td>
+      <td class="r">${fmt$(t.v)}</td><td class="r">${t.b||'—'}</td><td class="r">${t.l||'—'}</td></tr>`).join('');
+  document.querySelector('#trT tfoot').innerHTML = `<tr><td colspan="4">Total trasladado</td>
+    <td class="r">${fmt$(TR.reduce((a,t)=>a+t.v,0))}</td>
+    <td class="r">${TR.reduce((a,t)=>a+t.b,0)}</td><td class="r">${TR.reduce((a,t)=>a+t.l,0)}</td></tr>`;
+}
+function pintarVac(){
+  const v = ROWS.filter(r=>r.tp==='NO').sort((a,b)=>b.causada-a.causada);
+  document.querySelector('#vacT tbody').innerHTML = v.map(r=>`
+    <tr><td>${esc_(r.pdv)}</td><td>${cap(r.reg)}</td><td class="r">${fmt$(r.cq)}</td>
+      <td class="r">${fmt$(r.fq)}</td><td class="r">${fmtP(r.pp)}</td>
+      <td class="r">${r.causada ? '<b>'+fmt$(r.causada)+'</b>' : '—'}</td></tr>`).join('');
+  document.querySelector('#vacT tfoot').innerHTML = `<tr><td colspan="2">${v.length} puntos</td>
+    <td class="r">${fmt$(v.reduce((a,r)=>a+r.cq,0))}</td><td class="r">${fmt$(v.reduce((a,r)=>a+r.fq,0))}</td>
+    <td class="r"></td><td class="r">${fmt$(v.reduce((a,r)=>a+r.causada,0))}</td></tr>`;
+}
+function pintarPerm(){
+  // solo los puntos con promotor que tienen fecha de ingreso o de salida dentro del mes
+  const v = ROWS.filter(r => r.tp === 'SI' && (r.fi || r.fs)).filter(r=>{
+    const fi = fechaCO(r.fi), fs = fechaCO(r.fs);
+    if (!ANIO || !MESNUM) return false;
+    const ini = new Date(ANIO, MESNUM-1, 1), fin = new Date(ANIO, MESNUM, 0);
+    return (fi && fi > ini) || (fs && fs <= fin);
+  }).sort((a,b)=>a.dias-b.dias);
+  const tb = document.querySelector('#permT tbody');
+  if (!v.length){
+    tb.innerHTML = `<tr><td colspan="7">Nadie ingresó ni se retiró dentro del mes: los
+      ${ROWS.filter(r=>r.tp==='SI').length} promotores activos cumplen la permanencia.</td></tr>`;
+    document.querySelector('#permT tfoot').innerHTML = '';
+    return;
+  }
+  tb.innerHTML = v.map(r=>`
+    <tr><td>${esc_(r.pdv)}</td><td>${esc_(r.prom)}</td>
+      <td class="num">${esc_(r.fi || '—')}</td><td class="num">${esc_(r.fs || '—')}</td>
+      <td class="r">${r.dias}</td><td class="r">${fmt$(r.causada)}</td>
+      <td>${r.cumple ? '<span class="pill p-ok">SE PAGA</span> cumple la permanencia'
+                     : '<span class="pill p-no">NO SE PAGA</span> se causa y se factura, no entra a nómina'}</td>
+    </tr>`).join('');
+  const nc = v.filter(r=>!r.cumple);
+  document.querySelector('#permT tfoot').innerHTML = `<tr>
+    <td colspan="5">${nc.length} de ${v.length} no alcanzan los ${DIAS_MIN} días</td>
+    <td class="r">${fmt$(nc.reduce((a,r)=>a+r.causada,0))}</td>
+    <td>se causa, no se paga</td></tr>`;
+}
+function infoDe(pdv){ return (DATA.maestro || []).find(m => m.pdv === pdv) || {}; }
+const adic = n => n > 0 ? fmtN(n, 2) : '0';
+
+function pintarInforme(){
+  const rs = filtrar().slice().sort((a,b)=>{
+    if (sortK === 'ord'){ return (infoDe(a.pdv).ord - infoDe(b.pdv).ord) * sortD; }
+    let x = a[sortK], y = b[sortK];
+    if (x === undefined){ x = infoDe(a.pdv)[sortK] ?? ''; y = infoDe(b.pdv)[sortK] ?? ''; }
+    return (typeof x === 'string' ? x.localeCompare(y) : x - y) * sortD;
+  });
+  const mes = (DATA.mesLabel || MES || '').toUpperCase();
+  ['gMes1','gMes2','gMes3'].forEach(id => document.getElementById(id).textContent = mes);
+  document.querySelector('#infT tbody').innerHTML = rs.map(r=>{
+    const m = infoDe(r.pdv);
+    const exBat = r.fb > r.cb ? r.fb - r.cb : 0, exLla = r.fl > r.cl ? r.fl - r.cl : 0;
+    return `<tr>
+      <td>${esc_(m.con || 'Sin Promotor')}</td><td>${esc_(m.mi || 'Sin Promotor')}</td>
+      <td class="num">${esc_(m.fi || 'N/A')}</td><td class="num">${esc_(m.fs || 'N/A')}</td>
+      <td>${esc_(m.est || 'N/A')}</td><td>${mes}</td>
+      <td>${esc_(m.zona || '')}</td><td>${esc_(r.pdv)}</td>
+      <td class="r">${fmtN(r.cb,2)}</td><td class="r">${fmtN(r.cl,2)}</td><td class="r">${fmtN(r.cq)}</td>
+      <td class="r">${fmtN(r.fb)}</td><td class="r">${fmtN(r.fl)}</td><td class="r">${fmtN(r.fq)}</td>
+      <td class="r">${fmtP(r.pb)}</td><td class="r">${fmtP(r.pl)}</td><td class="r">${fmtP(r.pp)}</td>
+      <td class="r">${adic(exBat)}</td><td class="r">${adic(exLla)}</td>
+      <td class="r">${fmtN(r.cLla)}</td><td class="r">${fmtN(r.cBat)}</td><td class="r">${fmtN(r.cPpto)}</td>
+      <td>${r.motivo ? esc_(r.motivo) : esc_(m.obs || '')}</td>
+      <td class="r">${fmtN(r.aBat)}</td><td class="r">${fmtN(r.aLla)}</td>
+      <td class="r">${fmtN(r.causada)}</td></tr>`;
+  }).join('');
+  const T = k => rs.reduce((a,r)=>a + r[k], 0);
+  // la fila NACIONAL suma también al supervisor en cada concepto, no solo en el pago
+  const S = k => SUP ? SUP[k] : 0;
+  const exB = rs.reduce((a,r)=>a + (r.fb > r.cb ? r.fb-r.cb : 0), 0);
+  const exL = rs.reduce((a,r)=>a + (r.fl > r.cl ? r.fl-r.cl : 0), 0);
+  const filaSup = SUP ? `<tr class="sup">
+    <td>${esc_(SUP.con || 'supervisor')}</td><td>${esc_(SUP.nombre)}</td>
+    <td class="num">—</td><td class="num">—</td><td>—</td><td>TOTAL ${mes}</td>
+    <td></td><td>NACIONAL</td>
+    <td class="r">${fmtN(SUP.cb,2)}</td><td class="r">${fmtN(SUP.cl,2)}</td><td class="r">${fmtN(SUP.cq)}</td>
+    <td class="r">${fmtN(SUP.fb)}</td><td class="r">${fmtN(SUP.fl)}</td><td class="r">${fmtN(SUP.fq)}</td>
+    <td class="r">${fmtP(SUP.pb)}</td><td class="r">${fmtP(SUP.pl)}</td><td class="r">${fmtP(SUP.pp)}</td>
+    <td class="r">0</td><td class="r">0</td>
+    <td class="r">${fmtN(SUP.cLla)}</td><td class="r">${fmtN(SUP.cBat)}</td><td class="r">${fmtN(SUP.cPpto)}</td>
+    <td>SUPERVISOR</td><td class="r">0</td><td class="r">0</td>
+    <td class="r">${fmtN(SUP.pago)}</td></tr>` : '';
+  document.querySelector('#infT tfoot').innerHTML = filaSup + `<tr class="nac">
+    <td colspan="5"></td><td>TOTAL ${mes}</td><td></td><td>NACIONAL</td>
+    <td class="r">${fmtN(T('cb'),2)}</td><td class="r">${fmtN(T('cl'),2)}</td><td class="r">${fmtN(T('cq'))}</td>
+    <td class="r">${fmtN(T('fb'))}</td><td class="r">${fmtN(T('fl'))}</td><td class="r">${fmtN(T('fq'))}</td>
+    <td class="r">${fmtP(T('fb')/T('cb'))}</td><td class="r">${fmtP(T('fl')/T('cl'))}</td>
+    <td class="r">${fmtP(T('fq')/T('cq'))}</td>
+    <td class="r">${adic(exB)}</td><td class="r">${adic(exL)}</td>
+    <td class="r">${fmtN(T('cLla') + S('cLla'))}</td><td class="r">${fmtN(T('cBat') + S('cBat'))}</td>
+    <td class="r">${fmtN(T('cPpto') + S('cPpto'))}</td>
+    <td></td><td class="r">${fmtN(T('aBat'))}</td><td class="r">${fmtN(T('aLla'))}</td>
+    <td class="r">${fmtN(T('causada') + S('pago'))}</td></tr>`;
+}
+const pillPct = p => `<span class="pill ${p>=1?'p-ok':p>=0.8?'p-mid':'p-no'}">${fmtP(p)}</span>`;
+
+function pintarTodo(){
+  document.getElementById('periodo').textContent =
+    cap(MES.toLowerCase()) + ' · ' + ROWS.length + ' puntos de venta';
+  const regs = [...new Set(ROWS.map(r=>r.reg).filter(Boolean))].sort();
+  const sel = document.getElementById('regSel');
+  sel.innerHTML = '<option value="">Todas las regionales</option>' +
+    regs.map(r=>`<option value="${esc_(r)}">${cap(r)}</option>`).join('');
+  sel.value = F.reg;
+  aplicarHomologacion(); pintarMaestro();
+  pintarKPIs(); pintarHero(); pintarInsights(); pintarRank();
+  pintarGaps(); pintarTr(); pintarVac(); pintarPerm(); pintarInforme();
+}
+
+/* ---------------- maestro editable ----------------
+   El libro de comisiones trae cada mes el promotor, el estado y la zona. Lo único que
+   no viene en ningún insumo es la homologación del nombre del punto entre las tres
+   bases, así que esa parte se edita aquí y se guarda en el navegador. */
+const LS_KEY = 'derco_homologacion_v1';
+function leerHomologacion(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }catch(e){ return {}; }
+}
+function guardarHomologacion(h){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(h)); return true; }catch(e){ return false; }
+}
+function aplicarHomologacion(){
+  const h = leerHomologacion();
+  (DATA.maestro || []).forEach(m=>{
+    if (h[m.pdv]){
+      if (h[m.pdv].ali !== undefined) m.ali = h[m.pdv].ali;
+      if (h[m.pdv].so  !== undefined) m.so  = h[m.pdv].so;
+    }
+  });
+}
+function pintarMaestro(){
+  const M = (DATA.maestro || []).slice().sort((a,b)=>(a.ord ?? 0) - (b.ord ?? 0));
+  // dos problemas distintos: sin nombre de sell out no hay venta diaria (rompe el
+  // cálculo); sin alias de ingresos solo se pierden los cubrimientos de ese punto.
+  const sinVenta = M.filter(m => !m.so);
+  const sinIngreso = M.filter(m => m.so && !m.ali);
+  const av = [];
+  if (sinVenta.length) av.push(`<b>${sinVenta.length} punto${sinVenta.length>1?'s':''} sin nombre
+    en sell out:</b> ${sinVenta.map(m=>esc_(m.pdv)).join(', ')}. No se les cuenta venta diaria,
+    así que ningún cubrimiento sobre ellos se valoriza.`);
+  if (sinIngreso.length) av.push(`<b>${sinIngreso.length} punto${sinIngreso.length>1?'s':''} sin
+    nombre en el export de ingresos:</b> ${sinIngreso.map(m=>esc_(m.pdv)).join(', ')}. Nadie ha
+    registrado ingreso ahí. Si este mes alguien lo cubre, hay que completar el nombre para que
+    el traslado se detecte.`);
+  document.getElementById('mAlert').innerHTML = av.length
+    ? `<div class="alerta">${av.join('<br><br>')}</div>` : '';
+  document.querySelector('#mT tbody').innerHTML = M.map(m=>`
+    <tr class="${(!m.ali || !m.so) ? 'falta' : ''}" data-pdv="${esc_(m.pdv)}">
+      <td><b>${esc_(m.pdv)}</b></td>
+      <td contenteditable="true" data-c="ali" class="${m.ali ? '' : 'vacio'}">${esc_(m.ali || 'sin definir')}</td>
+      <td contenteditable="true" data-c="so" class="${m.so ? '' : 'vacio'}">${esc_(m.so || 'sin definir')}</td>
+      <td>${m.tp === 'NO' ? '<span class="pill p-no">sin promotor</span>' : esc_(m.prom || '')}</td>
+      <td>${esc_(m.est || '—')}</td></tr>`).join('');
+}
+document.querySelector('#mT tbody').addEventListener('blur', e=>{
+  const td = e.target.closest && e.target.closest('td[contenteditable]'); if (!td) return;
+  const pdv = td.closest('tr').dataset.pdv, campo = td.dataset.c;
+  let val = td.textContent.trim();
+  if (val === 'sin definir') val = '';
+  const m = DATA.maestro.find(x => x.pdv === pdv); if (!m) return;
+  if (m[campo] === val) return;
+  m[campo] = val;
+  const h = leerHomologacion();
+  h[pdv] = {...(h[pdv] || {}), [campo]: val};
+  const ok = guardarHomologacion(h);
+  const msg = document.getElementById('mMsg');
+  msg.className = ok ? 'msg' : 'msg err';
+  msg.textContent = ok ? 'Guardado. Vuelve a calcular para aplicarlo.'
+                       : 'No se pudo guardar en este navegador.';
+  setTimeout(()=>{ msg.textContent = ''; }, 4000);
+  pintarMaestro();
+}, true);
+document.getElementById('mDown').addEventListener('click', async ()=>{
+  const msg = document.getElementById('mMsg');
+  try{
+    const datos = (DATA.maestro || []).map(m => ({pdv:m.pdv, ali:m.ali, so:m.so}));
+    await guardar('maestro_homologacion.json', JSON.stringify(datos, null, 2), 'application/json');
+    msg.className = 'msg'; msg.textContent = datos.length + ' puntos exportados';
+  }catch(e){ msg.className = 'msg err'; msg.textContent = errDescarga(e); }
+  setTimeout(()=>{ msg.textContent = ''; }, 4000);
+});
+document.getElementById('mUp').addEventListener('click', ()=> document.getElementById('f-maestro').click());
+document.getElementById('f-maestro').addEventListener('change', e=>{
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = ev=>{
+    const msg = document.getElementById('mMsg');
+    try{
+      const arr = JSON.parse(ev.target.result);
+      const h = leerHomologacion();
+      arr.forEach(x=>{ if (x.pdv) h[x.pdv] = {ali:x.ali || '', so:x.so || ''}; });
+      guardarHomologacion(h); aplicarHomologacion(); pintarMaestro();
+      msg.className = 'msg'; msg.textContent = arr.length + ' puntos cargados';
+    }catch(err){ msg.className = 'msg err'; msg.textContent = 'El archivo no es un maestro válido.'; }
+    setTimeout(()=>{ msg.textContent = ''; }, 4000);
+  };
+  fr.readAsText(f);
+});
+document.getElementById('mReset').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  location.reload();
+});
+
+/* ---------------- tooltip ---------------- */
+const tip = document.getElementById('tip');
+document.addEventListener('mousemove', e=>{
+  const row = e.target.closest?.('.rrow');
+  if (!row){ tip.classList.remove('on'); return; }
+  const r = ROWS.find(x=>x.pdv === row.dataset.pdv); if (!r) return;
+  tip.innerHTML = `<div class="tt">${esc_(r.pdv)}</div>
+    <div class="tr"><span>Venta final</span><span>${fmt$(r.fq)}</span></div>
+    <div class="tr"><span>Cuota</span><span>${fmt$(r.cq)}</span></div>
+    <div class="tr"><span>Baterías</span><span>${fmtN(r.fb)} / ${fmtN(r.cb,0)}</span></div>
+    <div class="tr"><span>Llantas</span><span>${fmtN(r.fl)} / ${fmtN(r.cl,0)}</span></div>
+    <div class="tr"><span>${r.tp==='NO'?'Causada':'Pago'}</span><span>${fmt$(r.tp==='NO'?r.causada:r.pago)}</span></div>`;
+  tip.classList.add('on');
+  const x = Math.min(e.clientX + 14, innerWidth - 275);
+  tip.style.left = x + 'px';
+  tip.style.top = Math.min(e.clientY + 14, innerHeight - 150) + 'px';
+});
+
+/* ---------------- controles ---------------- */
+document.getElementById('redCk').addEventListener('change', e=>{ REDONDEO = e.target.checked; recalcular(); });
+document.getElementById('q').addEventListener('input', e=>{ F.q = e.target.value; pintarRank(); pintarInforme(); });
+document.getElementById('regSel').addEventListener('change', e=>{ F.reg = e.target.value; pintarRank(); pintarInforme(); });
+document.getElementById('chipPay').addEventListener('click', e=>{
+  F.pay = !F.pay; if (F.pay) F.vac = false;
+  sync(); pintarRank(); pintarInforme(); });
+document.getElementById('chipVac').addEventListener('click', e=>{
+  F.vac = !F.vac; if (F.vac) F.pay = false;
+  sync(); pintarRank(); pintarInforme(); });
+document.getElementById('clearF').addEventListener('click', ()=>{
+  F = {q:'', reg:'', pay:false, vac:false};
+  document.getElementById('q').value=''; document.getElementById('regSel').value='';
+  sync(); pintarRank(); pintarInforme(); });
+function sync(){
+  document.getElementById('chipPay').setAttribute('aria-pressed', F.pay);
+  document.getElementById('chipVac').setAttribute('aria-pressed', F.vac);
+}
+document.querySelectorAll('#infT thead th').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const k = th.dataset.k; if (!k) return;
+    if (sortK === k) sortD = -sortD; else { sortK = k; sortD = ['pdv','mi','con','zona'].includes(k) ? 1 : -1; }
+    pintarDet();
+  });
+});
+document.getElementById('themeBtn').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const dark = cur ? cur === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+});
+document.getElementById('loadBtn').addEventListener('click', ()=>{
+  const l = document.getElementById('loader');
+  l.classList.toggle('hidden');
+  if (!l.classList.contains('hidden')) l.scrollIntoView({behavior:'smooth', block:'nearest'});
+});
+
+/* ---------------- cargue de insumos ---------------- */
+const FILES = {bi:null, so:null, in:null, li:null};
+function hook(id, key, slot, name){
+  document.getElementById(id).addEventListener('change', e=>{
+    const f = e.target.files[0]; if (!f) return;
+    FILES[key] = f;
+    document.getElementById(slot).classList.add('ok');
+    document.getElementById(name).textContent = f.name;
+  });
+}
+hook('f-bi','bi','s-bi','n-bi'); hook('f-so','so','s-so','n-so');
+hook('f-in','in','s-in','n-in'); hook('f-li','li','s-li','n-li');
+
+const norm = s => String(s??'').trim();
+function leer(file, opts){
+  return new Promise((res, rej)=>{
+    const fr = new FileReader();
+    fr.onerror = ()=>rej(new Error('No se pudo leer ' + file.name));
+    fr.onload = ev=>{
+      try{
+        const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array', cellDates:true});
+        let nombre = opts.hoja && wb.Sheets[opts.hoja] ? opts.hoja : wb.SheetNames[0];
+        if (opts.hojaSup){
+          const h = wb.SheetNames.find(n => /^supervisor/i.test(n));
+          if (!h) { res([]); return; }
+          nombre = h;
+        } else if (opts.liq){
+          const h = wb.SheetNames.find(n => /^maestra/i.test(n))
+                 || wb.SheetNames.find(n => /liquidaci/i.test(n) && !/exito|éxito/i.test(n));
+          if (h) nombre = h;
+        }
+        const ws = wb.Sheets[nombre];
+        // raw:true entrega el valor nativo de la celda. Con raw:false llegaba el texto
+        // ya formateado ("$ 86,776,608", o la cuota 95,17 redondeada a "95") y se perdía
+        // precisión antes de calcular.
+        res(opts.aoa
+          ? XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true})
+          : XLSX.utils.sheet_to_json(ws, {defval:null, raw:true}));
+      }catch(err){ rej(new Error('Formato no reconocido en ' + file.name)); }
+    };
+    fr.readAsArrayBuffer(file);
+  });
+}
+const soloFecha = v => {
+  if (v == null || v === '') return '';
+  const p2 = n => String(n).padStart(2, '0');
+  if (v instanceof Date && !isNaN(v))
+    return v.getFullYear() + '-' + p2(v.getMonth()+1) + '-' + p2(v.getDate());
+  if (typeof v === 'number'){
+    const d = (typeof XLSX !== 'undefined' && XLSX.SSF) ? XLSX.SSF.parse_date_code(v) : null;
+    return d ? d.y + '-' + p2(d.m) + '-' + p2(d.d) : '';
+  }
+  const s = String(v);
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return m[0];
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  const d = new Date(s);
+  return isNaN(d) ? '' : d.toISOString().slice(0,10);
+};
+const numero = v => {
+  if (v == null || v === '') return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let s = String(v).trim().replace(/[^\d,.\-]/g, '');
+  if (!s || s === '-') return 0;
+  const lc = s.lastIndexOf(','), lp = s.lastIndexOf('.');
+  if (lc > lp) s = s.replace(/\./g, '').replace(',', '.');   // 1.234,56
+  else if (lp > lc) s = s.replace(/,/g, '');                  // 1,234.56
+  else s = s.replace(/[,.]/g, '');                            // sin decimales
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+};
+
+/* clave de nombre: sin tildes, mayúsculas y palabras ordenadas, para cruzar
+   "MEJÍA ROCHA JAVIER ENRIQUE" con "Javier Enrique Mejía Rocha" */
+const nk = t => String(t ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .toUpperCase().replace(/[^A-Z ]/g,'').split(/\s+/).filter(Boolean).sort().join(' ');
+const ddmmyyyy = v => { const f = soloFecha(v); if (!f) return '';
+  const [a,m,d] = f.split('-'); return `${d}/${m}/${a}`; };
+
+/* Lee el cuarto insumo. Formato propio: la MAESTRA de puntos de venta que mantiene el
+   equipo. Se acepta también el libro de comisiones del analista, para la transición. */
+const hnorm = t => String(t ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .toUpperCase().replace(/[^A-Z0-9]/g,'');
+
+function maestroDesdeArchivo(aoa, ing){
+  const filaHead = aoa.findIndex(r => Array.isArray(r) && r.some(c =>
+    ['PUNTODEVENTABI','NOMBREPUNTODEVENTA'].includes(hnorm(c))));
+  if (filaHead < 0) throw new Error(
+    'El cuarto archivo no parece la maestra de puntos: falta la columna "PUNTO DE VENTA (BI)".');
+  const H = aoa[filaHead].map(hnorm);
+  const col = (...ns) => { for (const n of ns){ const i = H.indexOf(hnorm(n)); if (i >= 0) return i; } return -1; };
+  const esMaestra = col('PUNTO DE VENTA (BI)') >= 0;
+
+  const iPdv  = col('PUNTO DE VENTA (BI)', 'Nombre Punto de Venta');
+  const iAli  = col('NOMBRE EN INGRESOS A PDV');
+  const iSo   = col('NOMBRE EN SELL OUT');
+  const iTp   = col('TIENE PROMOTOR');
+  const iCed  = col('CEDULA PROMOTOR');
+  const iProm = col('NOMBRE PROMOTOR', 'NOMBRE DEL MI');
+  const iCon  = col('NUMERO DE CONTRATO');
+  const iFi   = col('FECHA DE INGRESO', 'Fecha De Ingreso');
+  const iFs   = col('FECHA DE SALIDA', 'Fecha De Salida');
+  const iEst  = col('ESTADO');
+  const iZona = col('ZONA');
+  const iObs  = col('OBSERVACION');
+  const iOrd  = col('ORDEN');
+
+  const cedPorNombre = {};
+  ing.forEach(r => { const k = nk(r['Funcionario']);
+    if (k && !cedPorNombre[k]) cedPorNombre[k] = norm(r['Doc. Identidad']); });
+  const previo = {}; (DATA.maestro || []).forEach(m => previo[m.pdv] = m);
+
+  const out = [], sinHomologar = [];
+  for (let i = filaHead + 1; i < aoa.length; i++){
+    const f = aoa[i] || [];
+    const pdv = norm(f[iPdv]);
+    if (!pdv || ['NACIONAL','TOTAL'].includes(pdv.toUpperCase())) continue;
+    // en la maestra, una fila válida declara SI o NO; así se descarta cualquier
+    // fila de ayuda o de notas que quede debajo del encabezado
+    if (esMaestra && !/^(si|no)$/i.test(norm(f[iTp]))) continue;
+    const ant = previo[pdv] || {};
+    const con = iCon >= 0 ? norm(f[iCon]) : '';
+    const vac = esMaestra
+      ? /^no$/i.test(norm(f[iTp]))
+      : (/^sin promotor$/i.test(con) || !con);
+    const prom = vac ? 'SIN PROMOTOR' : norm(f[iProm]);
+    const ali = iAli >= 0 ? (norm(f[iAli]) || ant.ali || '') : (ant.ali || '');
+    const so  = iSo  >= 0 ? (norm(f[iSo])  || ant.so  || '') : (ant.so  || '');
+    if (!ali || !so) sinHomologar.push(pdv);
+    out.push({ pdv, ali, so, prom, tp: vac ? 'NO' : 'SI',
+      ced: vac ? '' : ((iCed >= 0 ? norm(f[iCed]) : '') || cedPorNombre[nk(prom)] || ant.ced || ''),
+      ord: (iOrd >= 0 && numero(f[iOrd])) ? numero(f[iOrd]) : out.length + 1,
+      con: vac ? '' : con, mi: prom,
+      fi: vac ? '' : (iFi >= 0 ? ddmmyyyy(f[iFi]) : ''),
+      fs: vac ? '' : (iFs >= 0 ? ddmmyyyy(f[iFs]) : ''),
+      est: vac ? '' : (iEst >= 0 ? norm(f[iEst]) : ''),
+      zona: iZona >= 0 ? norm(f[iZona]) : (ant.zona || ''),
+      obs: iObs >= 0 ? norm(f[iObs]) : '' });
+  }
+  if (!out.length) throw new Error('No se leyó ningún punto de venta del cuarto archivo.');
+  out.sort((a,b)=> a.ord - b.ord);
+  return {maestro: out, origen: esMaestra ? 'la plantilla' : 'el libro de comisiones', sinHomologar,
+          sinCedula: out.filter(m => m.tp === 'SI' && !m.ced).map(m => m.prom)};
+}
+
+function calcularDesdeArchivos(bi, so, ing){
+  const M = DATA.maestro;
+  const porAlias = {}, porSO = {}, porCed = {}, tp = {};
+  // el nombre del punto en ingresos puede variar entre exports: la maestra admite
+  // varios separados por "|"
+  M.forEach(m=>{
+    String(m.ali || '').split('|').forEach(a=>{ a = a.trim(); if (a) porAlias[a] = m.pdv; });
+    if (m.so) porSO[m.so] = m.pdv;
+    if (m.ced && m.tp === 'SI') porCed[m.ced] = m.pdv;
+    tp[m.pdv] = m.tp;
+  });
+
+  // venta por punto|fecha
+  const dia = {};
+  // El sell out trae 'Grupo' en el export largo y solo 'Sub Familia' en el corto.
+  // La equivalencia es 1:1 para las dos categorías que comisionan.
+  const CAT = {'BATERIAS':'B', 'BATERIAS Y ACCESORIOS':'B', 'NEUMATICOS/LLANTAS/GOMAS':'L'};
+  so.forEach(r=>{
+    const pdv = porSO[norm(r['Nombre Tienda'])]; if (!pdv) return;
+    const k = pdv + '|' + soloFecha(r['Fecha']);
+    const cat = CAT[norm(r['Grupo']).toUpperCase()] || CAT[norm(r['Sub Familia']).toUpperCase()];
+    const u = numero(r['Unidades Vendidas']), v = numero(r['Ventas Pesos']);
+    const d = dia[k] || (dia[k] = {v:0, b:0, l:0});
+    d.v += v;
+    if (cat === 'B') d.b += u;
+    else if (cat === 'L') d.l += u;
+  });
+
+  // traslados
+  const vistos = new Set(), tras = [];
+  ing.forEach(r=>{
+    // 'Cargo' no viene en todos los formatos del export. Cuando está, filtra;
+    // cuando no, la maestra decide: solo un promotor con punto asignado traslada.
+    const cargo = norm(r['Cargo']);
+    if (cargo && cargo !== 'Promotor Comercial') return;
+    const pdv = porAlias[norm(r['Nombre Alias Punto de Venta'])]
+             || porAlias[norm(r['Punto de Venta'])];
+    if (!pdv || tp[pdv] !== 'NO') return;
+    const ced = norm(r['Doc. Identidad']);
+    const dest = porCed[ced]; if (!dest) return;
+    const f = soloFecha(r['Fecha registro']); if (!f) return;
+    const key = pdv + '|' + f + '|' + ced; if (vistos.has(key)) return;
+    vistos.add(key);
+    const d = dia[pdv + '|' + f] || {v:0, b:0, l:0};
+    // un día con venta negativa (devolución) no se traslada: castigaría a quien cubrió
+    if (d.v < 0) return;
+    tras.push({f, org:pdv, ases:norm(r['Funcionario']), dest, v:d.v, b:d.b, l:d.l});
+  });
+
+  // puntos
+  const rec = {}, ent = {};
+  tras.forEach(t=>{
+    (rec[t.dest] = rec[t.dest] || {v:0,b:0,l:0}); rec[t.dest].v+=t.v; rec[t.dest].b+=t.b; rec[t.dest].l+=t.l;
+    (ent[t.org]  = ent[t.org]  || {v:0,b:0,l:0}); ent[t.org].v+=t.v;  ent[t.org].b+=t.b;  ent[t.org].l+=t.l;
+  });
+  const prom = {}; M.forEach(m=>prom[m.pdv] = m.prom);
+  const puntos = [];
+  bi.forEach(r=>{
+    const pdv = norm(r['Tienda']); if (!pdv || !tp[pdv]) return;
+    const R = rec[pdv] || {v:0,b:0,l:0}, E = ent[pdv] || {v:0,b:0,l:0};
+    const vq = numero(r['Venta en Pesos']), vb = numero(r['Venta Baterias']), vl = numero(r['Venta Llantas']);
+    puntos.push({pdv, reg:norm(r['Regional']), prom:prom[pdv] || 'SIN PROMOTOR', tp:tp[pdv],
+      cq:numero(r['Cuota en Pesos']), cb:numero(r['Cuota Baterias']), cl:numero(r['Cuota Llantas']),
+      vq, vb, vl, rq:R.v, rb:R.b, rl:R.l, eq:E.v, eb:E.b, el:E.l,
+      fq:vq+R.v-E.v, fb:vb+R.b-E.b, fl:vl+R.l-E.l});
+  });
+  if (!puntos.length) throw new Error('No se reconoció ninguna tienda del BI. Revisá que sea el descargable correcto.');
+  const mes = norm(bi[0]?.['Mes']) + ' ' + norm(bi[0]?.['Año'] ?? bi[0]?.['Año - Año'] ?? '');
+  const etq = mes.trim().toUpperCase();
+  const im = MESES.findIndex(x => etq.includes(x));
+  return {mes: mes.trim() || 'Periodo cargado', mesLabel: norm(bi[0]?.['Mes']).toUpperCase(),
+          mesNum: im >= 0 ? im+1 : null,
+          anio: etq.match(/(20\d{2})/) ? +etq.match(/(20\d{2})/)[1] : null,
+          puntos, traslados: tras, maestro: M};
+}
+
+document.getElementById('calcBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('msg');
+  const faltan = ['bi','so','in'].filter(k => !FILES[k]).length;
+  if (faltan){ msg.className = 'msg err';
+    msg.textContent = 'Faltan ' + faltan + ' de los tres insumos obligatorios.'; return; }
+  msg.className = 'msg'; msg.textContent = 'Procesando…';
+  try{
+    const [bi, so, ing] = await Promise.all([
+      leer(FILES.bi, {}), leer(FILES.so, {hoja:'Ventas'}), leer(FILES.in, {})]);
+    const soLimpio = so.filter(r => /^\d{4}-\d{2}-\d{2}$/.test(soloFecha(r['Fecha'])));
+    let aviso = '';
+    if (FILES.li){
+      const aoa = await leer(FILES.li, {liq:true, aoa:true});
+      const sup = await leer(FILES.li, {hojaSup:true, aoa:true});
+      if (sup && sup.length > 1){
+        // los encabezados de esa hoja no están en la primera fila: se buscan
+        const hi = sup.findIndex(r => Array.isArray(r) && r.some(c => hnorm(c) === 'NOMBRE'));
+        if (hi >= 0 && sup[hi + 1]){
+          const H = sup[hi].map(hnorm);
+          const col = n => H.indexOf(hnorm(n));
+          const f = sup[hi + 1];
+          DATA.supervisor = {nombre: norm(f[col('NOMBRE')]), ced: norm(f[col('CEDULA')]),
+                             con: norm(f[col('NUMERO DE CONTRATO')]) || 'supervisor'};
+        }
+      }
+      const {maestro, origen, sinHomologar, sinCedula} = maestroDesdeArchivo(aoa, ing);
+      DATA.maestro = maestro;
+      aplicarHomologacion();   // conserva lo que se haya corregido a mano en el tablero
+      const vac = maestro.filter(m => m.tp === 'NO').length;
+      aviso = ` Maestra actualizada desde ${origen}: ${maestro.length} puntos, ${vac} sin promotor.`;
+      if (sinHomologar.length) aviso += ` Sin homologar: ${sinHomologar.join(', ')}.`;
+      if (sinCedula.length) aviso += ` Sin cédula (no podrán trasladar): ${[...new Set(sinCedula)].join(', ')}.`;
+    } else {
+      aviso = ' Atención: se usó la maestra del mes anterior porque no cargaste la del mes.';
+    }
+    const nuevo = calcularDesdeArchivos(bi, soLimpio, ing);
+    Object.assign(DATA, nuevo);
+    recalcular();
+    msg.className = FILES.li ? 'msg' : 'msg err';
+    msg.textContent = `Listo: ${nuevo.puntos.length} puntos y ${nuevo.traslados.length} cubrimientos.` + aviso;
+    document.getElementById('fnote').textContent =
+      ' Datos cargados desde archivo' + (FILES.li ? ' con la maestra del mes.' : ' con la maestra anterior.');
+  }catch(err){
+    msg.className = 'msg err'; msg.textContent = err.message;
+  }
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>location.reload());
+
+/* ---- descarga del informe en .xlsx ---- */
+const COLS = ['NUMERO DE CONTRATO','NOMBRE DEL MI','Fecha De Ingreso','Fecha De Salida','Estado','MES',
+  'ZONA','Nombre Punto de Venta','BATERIAS','LLANTAS','PPTO TOTAL','BATERIAS VENDIDAS DERCO',
+  'LLANTAS VENDIDAS DERCO','VENTA FINAL EN PESOS','CUMPLIMIENTO UNDS BATERIAS',
+  'CUMPLIMIENTO UNDS LLANTAS','CUMPLIMIENTO PPTO','BATERIAS ADICIONALES','LLANTAS ADICIONALES',
+  'LLANTAS','BATERIAS','$ PPTO','OBSERVACION','Comision Baterias Adc','Comision Llantas Adc','PAGO TOTAL'];
+const FMT = {8:'#,##0.00', 9:'#,##0.00', 10:'#,##0', 11:'#,##0', 12:'#,##0', 13:'#,##0',
+  14:'0.0%', 15:'0.0%', 16:'0.0%', 17:'#,##0.00', 18:'#,##0.00',
+  19:'#,##0', 20:'#,##0', 21:'#,##0', 23:'#,##0', 24:'#,##0', 25:'#,##0'};
+
+const M = n => Math.round(n);
+
+function hojaInforme(rs, mes){
+  const aoa = [];
+  const banda = Array(26).fill('');
+  banda[8] = 'OBJETIVOS ' + mes; banda[11] = 'VENTA ' + mes; banda[14] = 'CUMPLIMIENTO ' + mes;
+  aoa.push(banda, COLS.slice());
+  rs.forEach(r=>{
+    const m = infoDe(r.pdv);
+    aoa.push([ m.con || 'Sin Promotor', m.mi || 'Sin Promotor', m.fi || 'N/A', m.fs || 'N/A',
+      m.est || 'N/A', mes, m.zona || '', r.pdv,
+      r.cb, r.cl, M(r.cq), r.fb, r.fl, M(r.fq), r.pb, r.pl, r.pp,
+      r.fb > r.cb ? r.fb-r.cb : 0, r.fl > r.cl ? r.fl-r.cl : 0,
+      M(r.cLla), M(r.cBat), M(r.cPpto), r.motivo || m.obs || '',
+      M(r.aBat), M(r.aLla), M(r.causada) ]);
+  });
+  const T = k => rs.reduce((a,r)=>a + r[k], 0);
+  const S = k => SUP ? SUP[k] : 0;
+  if (SUP) aoa.push([SUP.con || 'supervisor', SUP.nombre, '', '', '', 'TOTAL ' + mes, '', 'NACIONAL',
+    SUP.cb, SUP.cl, M(SUP.cq), SUP.fb, SUP.fl, M(SUP.fq), SUP.pb, SUP.pl, SUP.pp, 0, 0,
+    M(SUP.cLla), M(SUP.cBat), M(SUP.cPpto), 'SUPERVISOR', 0, 0, M(SUP.pago)]);
+  aoa.push(['','','','','','TOTAL ' + mes, '', 'NACIONAL',
+    T('cb'), T('cl'), M(T('cq')), T('fb'), T('fl'), M(T('fq')),
+    T('fb')/T('cb'), T('fl')/T('cl'), T('fq')/T('cq'),
+    rs.reduce((a,r)=>a + (r.fb>r.cb ? r.fb-r.cb : 0), 0),
+    rs.reduce((a,r)=>a + (r.fl>r.cl ? r.fl-r.cl : 0), 0),
+    M(T('cLla') + S('cLla')), M(T('cBat') + S('cBat')), M(T('cPpto') + S('cPpto')),
+    '', M(T('aBat')), M(T('aLla')), M(T('causada') + S('pago'))]);
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!merges'] = [{s:{r:0,c:8},e:{r:0,c:10}}, {s:{r:0,c:11},e:{r:0,c:13}}, {s:{r:0,c:14},e:{r:0,c:16}}];
+  ws['!cols'] = COLS.map((c,i)=>({wch: i===1 ? 34 : i===7 ? 20 : i===6 ? 16 : Math.max(11, Math.min(c.length, 22))}));
+  ws['!freeze'] = {xSplit:8, ySplit:2};
+  for (let f = 2; f < aoa.length; f++)
+    for (const [c, z] of Object.entries(FMT)){
+      const ref = XLSX.utils.encode_cell({r:f, c:+c});
+      if (ws[ref] && typeof ws[ref].v === 'number') ws[ref].z = z;
+    }
+  return ws;
+}
+function hojaCubrimientos(){
+  const aoa = [['FECHA','PUNTO SIN PROMOTOR','ASESOR QUE INGRESO','PUNTO DESTINO',
+                'VENTA TRASLADADA','BATERIAS','LLANTAS']];
+  TR.slice().sort((a,b)=> a.org.localeCompare(b.org) || a.f.localeCompare(b.f))
+    .forEach(t => aoa.push([t.f, t.org, t.ases, t.dest, M(t.v), t.b, t.l]));
+  aoa.push(['','','','TOTAL', M(TR.reduce((a,t)=>a+t.v,0)),
+            TR.reduce((a,t)=>a+t.b,0), TR.reduce((a,t)=>a+t.l,0)]);
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:12},{wch:20},{wch:34},{wch:18},{wch:16},{wch:10},{wch:10}];
+  for (let f = 1; f < aoa.length; f++){
+    const ref = XLSX.utils.encode_cell({r:f, c:4});
+    if (ws[ref]) ws[ref].z = '#,##0';
+  }
+  return ws;
+}
+function hojaVacantes(){
+  const v = ROWS.filter(r=>r.tp === 'NO').sort((a,b)=>b.causada - a.causada);
+  const aoa = [['PUNTO DE VENTA','REGIONAL','CUOTA','VENTA','CUMPLIMIENTO','COMISION CAUSADA']];
+  v.forEach(r => aoa.push([r.pdv, r.reg, M(r.cq), M(r.fq), r.pp, M(r.causada)]));
+  aoa.push([v.length + ' puntos', '', M(v.reduce((a,r)=>a+r.cq,0)), M(v.reduce((a,r)=>a+r.fq,0)), '',
+            M(v.reduce((a,r)=>a+r.causada,0))]);
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:20},{wch:16},{wch:16},{wch:16},{wch:14},{wch:18}];
+  for (let f = 1; f < aoa.length; f++)
+    for (const [c,z] of [[2,'#,##0'],[3,'#,##0'],[4,'0.0%'],[5,'#,##0']]){
+      const ref = XLSX.utils.encode_cell({r:f, c});
+      if (ws[ref] && typeof ws[ref].v === 'number') ws[ref].z = z;
+    }
+  return ws;
+}
+document.getElementById('xlsBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('copyMsg');
+  if (typeof XLSX === 'undefined'){
+    msg.className = 'msg err';
+    msg.textContent = 'Sin conexión no se puede generar el Excel; usá "Copiar para Excel".';
+    return;
+  }
+  try{
+    const mes = (DATA.mesLabel || MES || '').toUpperCase();
+    const rs = filtrar().slice().sort((a,b)=> infoDe(a.pdv).ord - infoDe(b.pdv).ord);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, hojaInforme(rs, mes), 'Liquidación promotores');
+    XLSX.utils.book_append_sheet(wb, hojaCubrimientos(), 'Cubrimientos');
+    XLSX.utils.book_append_sheet(wb, hojaVacantes(), 'Puntos sin promotor');
+    const buf = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+    await guardar('Liquidacion_promotores_' + mes.replace(/\s+/g,'_') + '.xlsx',
+      new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    msg.className = 'msg'; msg.textContent = rs.length + ' filas exportadas';
+  }catch(e){
+    msg.className = 'msg err';
+    msg.textContent = errDescarga(e) + ' Podés usar "Copiar para Excel".';
+  }
+  setTimeout(()=>{ msg.textContent = ''; msg.className = 'msg'; }, 4000);
+});
+
+/* copiar el informe en TSV, para pegarlo directo en Excel */
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  const t = document.getElementById('infT');
+  const filas = [...t.querySelectorAll('thead tr:nth-child(2), tbody tr, tfoot tr')]
+    .map(tr => [...tr.children].map(td => {
+      const n = +td.colSpan || 1;
+      const v = td.textContent.replace(/\s+/g,' ').trim();
+      return Array(n).fill(v === '' ? '' : v).map((x,i)=> i ? '' : x).join('\t');
+    }).join('\t'));
+  const msg = document.getElementById('copyMsg');
+  try{
+    await navigator.clipboard.writeText(filas.join('\n'));
+    msg.textContent = filas.length - 2 + ' filas copiadas';
+  }catch(e){ msg.className = 'msg err'; msg.textContent = 'El navegador bloqueó el portapapeles'; }
+  setTimeout(()=>{ msg.textContent = ''; msg.className = 'msg'; }, 3500);
+});
+
+sync(); recalcular();
+</script>
